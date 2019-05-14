@@ -30,7 +30,7 @@ def services():
     return "Bunch of fools"
 
 @app.route('/wiki')
-def services():
+def wiki():
     return "unhelpful and outdated info"
 
 @app.route('/new-members')
