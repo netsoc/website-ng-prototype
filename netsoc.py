@@ -3,11 +3,11 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template("hello.html", name="Jeff")
+    return render_template("home.html")
 
 @app.route('/about-us')
 def about():
-    return "There is nothing to tell"
+    return render_template("about-us.html")
 
 # Needs to be able to handle the current library system
 @app.route('/library')
@@ -23,24 +23,24 @@ def sign_up():
 # Basic html page
 @app.route('/committee')
 def committee():
-    return "Bunch of fools"
+    return render_template("committee.html")
 
 @app.route('/services')
 def services():
-    return "Bunch of fools"
+    return render_template("services.html")
 
 @app.route('/wiki')
 def wiki():
-    return "unhelpful and outdated info"
+    return render_template("wiki.html")
 
 @app.route('/new-members')
 def new_members():
-    return "Blah"
+    return render_template("new-members.html")
 
 # Not sure how accurate or necessary this page is
 @app.route('/file-storage')
 def file_storage():
-    return "Blah"
+    return render_template("file-storage.html")
 
 # Not sure how accurate or necessary this page is
 @app.route('/mailing-lists')
@@ -49,7 +49,7 @@ def mail_lists():
 
 @app.route("/slides")
 def slides():
-    return "Read a book"
+    return render_template("slides.html")
 
 @app.route("/login")
 def login():

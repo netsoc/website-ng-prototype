@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %} New Members {% endblock %}
+
+{% block header %}
+<h1>New Members</h1>
+{% endblock %}
+
+{% block content %}
+<h2>Contents</h2>
+
+<ul>
+<li><a href="#Netsoc_servers"><span>1</span> <span>Netsoc servers</span></a></li>
+<li><a href="#Games"><span>2</span> <span>Games</span></a></li>
+<li><a href="#Remote_Desktop"><span>3</span> <span>Remote Desktop</span></a></li>
+<li><a href="#Changing_your_password"><span>4</span> <span>Changing your password</span></a></li>
+<li><a href="#Chat"><span>5</span> <span>Chat</span></a></li>
+<li><a href="#Your_stuff"><span>6</span> <span>Your stuff</span></a></li>
+<li><a href="#Email"><span>7</span> <span>Email</span></a></li>
+<li><a href="#The_Web"><span>8</span> <span>The Web</span></a></li>
+<li><a href="#Video_help"><span>9</span> <span>Video help</span></a></li>
+</ul>
+
+<h2><span id="Netsoc_servers">Netsoc servers</span></h2>
+<p>Your Netsoc membership gives you access to a variety of <a title="Servers" href="/index.php?title=Servers">servers</a> and <a class="mw-redirect" title="Workstations" href="/index.php?title=Workstations">workstations</a>, run by and for Netsoc members. The main ones are <a title="Spoon" href="/index.php?title=Spoon">Spoon</a> and <a title="Cube" href="/index.php?title=Cube">Cube</a>. Since our servers are safely locked away in the bowels of College, to access your account you need to log in remotely. Find out how by reading the article about <a title="SSH" href="/index.php?title=SSH">SSH</a>. All our computers run some kind of Unix-like operating system, with the most common ones being GNU/Linux (Debian, Ubuntu, Arch, Linux Mint) and NetBSD.</p>
+<h2><span id="Games">Games</span></h2>
+<p>We have a game called <a title="Netris" href="/index.php?title=Netris">netris</a> installed on <a title="Spoon" href="/index.php?title=Spoon">spoon</a> and <a title="Cube" href="/index.php?title=Cube">cube</a>, our main login servers, it’s basically a multipayer tetris, and it can get pretty competitive… You can also play text based versions of certain games on <a title="IRC" href="/index.php?title=IRC">IRC</a> such as werewolf/mafia (#wolf), Cards Against Humanity (#cardsagainsthumanity), Uno (#uno), and Countdown (#countdown).</p>
+<h2><span id="Remote_Desktop">Remote Desktop</span></h2>
+<p>You can connect to a remote desktop on <a title="Cube" href="/index.php?title=Cube">Cube</a> and use it as though you were sitting right in front of cube wasting time on reddit all day. Find out how <a class="mw-redirect" title="NX" href="/index.php?title=NX">here</a>.</p>
+<h2><span id="Changing_your_password">Changing your password</span></h2>
+<p>When you activated your account after signing up, you received a password by email. This password should be changed to something you’ll remember better. To change your password, after logging in, type <b>passwd</b> at the prompt, and hit return.</p>
+<h2><span id="Chat">Chat</span></h2>
+<p>The first thing you should do (but first finish reading this section) is log in and run the <a title="Chat" href="/index.php?title=Chat">Chat</a> program. This will connect you to the Netsoc <a title="IRC" href="/index.php?title=IRC">IRC</a> channel, where you can introduce yourself and get to know the other society members.<br>
+This is the primary way of “getting in touch” other than by emailing or coming by the Netsoc room. How to use IRC to talk to all of us is explained very well in <a title="Chat" href="/index.php?title=Chat">Chat</a>.<br>
+You should probably run chat inside tmux. For a better explanation of this, see the video at the bottom of the page.</p>
+<p>To talk to Netsoc when logged into a desktop environment, just double-click the IRC launcher on your Cube desktop.</p>
+<h2><span id="Your_stuff">Your stuff</span></h2>
+<p>You have a home directory, located at <b>/home/your_username</b> on each of these machines. Here you can put all of your files. Since our machines are accessible from outside and inside college, and have the benefit of the speed of the college network, this is a great place to keep assignments and other things you need to get at quickly. Just be sure to keep a backup!</p>
+<h2><span id="Email">Email</span></h2>
+<p>When you sign up for Netsoc you get an email address of the form <b>you@netsoc.tcd.ie</b>.<br>
+See <a title="Email" href="/index.php?title=Email">email</a> for more info.</p>
+<h2><span id="The_Web">The Web</span></h2>
+<p>You can host your website with netsoc!<br>
+See <a title="Webspace" href="/index.php?title=Webspace">Webspace</a> for more info.</p>
+<h2><span id="Video_help">Video help</span></h2>
+<p>Here is a video showing how to set up your account, log into our servers, and some basics for setting yourself up with using Linux:</p>
+<div  style="width: 100%;"><iframe width="100%" height="480" src="https://www.youtube.com/embed/VKoIxePopEs" frameborder="0" allowfullscreen=""></iframe></div>
+<p></p>
+</div>
+
+{% endblock %}
