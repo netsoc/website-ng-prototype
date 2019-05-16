@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from os import environ
 
 from werkzeug.middleware.proxy_fix import ProxyFix
