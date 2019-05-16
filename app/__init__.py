@@ -1,12 +1,16 @@
 from os import environ
 
-import tzlocal
-import html2text
-from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import Flask, render_template, abort
-from sqlalchemy.engine.url import URL
+from flask import Flask, abort, render_template
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import URL
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+import html2text
+import tzlocal
 from flask_sqlalchemy import SQLAlchemy
+
+from . import models
+from .models import BlogPost
 
 timezone = tzlocal.get_localzone()
 
@@ -44,8 +48,6 @@ app.config.update({
 })
 
 db = SQLAlchemy(app)
-from . import models
-from .models import BlogPost
 
 @app.before_first_request
 def init_tables():
@@ -85,7 +87,19 @@ def about():
 # Needs to be able to handle the current library system
 @app.route('/library')
 def library():
-    return "Books are for nerds"
+    test = [
+        {'title': 'acb','id':1},
+        {'title': 'b','id':2},
+        {'title': 'c','id':3},
+        {'title': 'd','id':4},
+    ]
+    return render_template("library.html", books=test)
+    # return "Books are for nerds"
+
+@app.route('/library/<id>', methods=['GET'])
+def book(id):
+    # retrive book from db
+    return f"Book page: {id}" # TODO render_template('book.html', ...)
 
 # This one will be a bit awkward as need way to write to openldap
 # from snark-www
