@@ -1,0 +1,16 @@
+version: '3'
+services:
+  app:
+    image: netsoc-website/app
+    build:
+      context: ./build
+    restart: on-failure
+    volumes:
+      - ./app:/opt/app:ro
+    environment:
+      - FLASK_ENV=${FLASK_ENV}
+      - FLASK_SECRET=${FLASK_SECRET}
+      - PUBLIC_HOST=${PUBLIC_HOST}
+      - HTTP_PORT=${HTTP_PORT}
+    ports:
+      - "$HTTP_PORT:8080"

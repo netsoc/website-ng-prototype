@@ -1,5 +1,23 @@
+#!/usr/bin/env python
+from os import environ
+
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import Flask, render_template
+
 app = Flask(__name__)
+
+# Make sure request.remote_addr represents the real client IP
+#app.wsgi_app = ProxyFix(app.wsgi_app)
+
+# Configuration is provided through environment variables by Docker Compose
+development = not environ['FLASK_ENV'] == 'production'
+app.config.update({
+    'SECRET_KEY': environ['FLASK_SECRET'],
+    # Only want to include port in development mode - in production we will be reverse-proxied
+    'SERVER_NAME': f"{environ['PUBLIC_HOST']}:{environ['HTTP_PORT']}" if development else environ['PUBLIC_HOST'],
+    # It's CURRENT_YEAR, people
+    'PREFERRED_URL_SCHEME': 'http' if development else 'https',
+})
 
 @app.route('/')
 def home():
@@ -56,6 +74,6 @@ def login():
     return "Must be a member"
 
 
-# Can use following code if you don't want to set environment variables
+# Development mode entrypoint
 if __name__ == '__main__':
-   app.run(debug=True)
+    app.run(host='::', port=environ['HTTP_PORT'])
