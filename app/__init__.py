@@ -6,6 +6,7 @@ from sqlalchemy.engine.url import URL
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import html2text
+import library as lib
 import tzlocal
 from flask_sqlalchemy import SQLAlchemy
 
@@ -20,6 +21,7 @@ summarizer.ignore_anchors = True
 summarizer.images_to_alt = True
 summarizer.ignore_emphasis = True
 summarizer.ignore_tables = True
+
 
 app = Flask(__name__)
 # Make sure request.remote_addr represents the real client IP
@@ -84,22 +86,25 @@ def post(id):
 def about():
     return render_template("about-us.html")
 
-# Needs to be able to handle the current library system
-@app.route('/library')
-def library():
-    test = [
-        {'title': 'acb','id':1},
+test = [
+        {'title': 'acb','id':1, 'author': 'some person', 'description': 'this is a book about stuff'},
         {'title': 'b','id':2},
         {'title': 'c','id':3},
         {'title': 'd','id':4},
     ]
-    return render_template("library.html", books=test)
+
+# Needs to be able to handle the current library system
+@app.route('/library')
+def library():
+    return render_template("library.html", books=lib.books_from_csv())
     # return "Books are for nerds"
 
-@app.route('/library/<id>', methods=['GET'])
+@app.route('/library/book/<id>', methods=['GET'])
 def book(id):
     # retrive book from db
-    return f"Book page: {id}" # TODO render_template('book.html', ...)
+    book = lib.lookup(id)
+    print(book)
+    return render_template('book.html', book=book)
 
 # This one will be a bit awkward as need way to write to openldap
 # from snark-www
