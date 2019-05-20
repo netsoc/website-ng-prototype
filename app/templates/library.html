@@ -7,8 +7,17 @@
 
 {% block content %}
 
-<table>
 <!-- {insert search template??} -->
+<p>
+    Filler space for search section
+</p>
+
+<div>
+    *TO BE SIDE BAR*
+    <h2>{{search}}:{{key}}</h2>
+</div>
+
+<table>
 {% for book in books %}
     <tr>
         <td>{{book.id}}</td>

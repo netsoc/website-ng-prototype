@@ -94,12 +94,17 @@ test = [
     ]
 
 # Needs to be able to handle the current library system
-@app.route('/library')
-def library():
-    return render_template("library.html", books=lib.books_from_csv())
+@app.route('/library/')
+@app.route('/library/<search>/<key>')
+def library(search=None, key=None):
+    #print(search, key)
+    books=lib.books_from_csv()
+    if search:
+        books = [b for b in books if key in b[search]]
+    return render_template("library.html", books=books, search=search, key=key)
     # return "Books are for nerds"
 
-@app.route('/library/book/<id>', methods=['GET'])
+@app.route('/library/book/<id>')
 def book(id):
     # retrive book from db
     book = lib.lookup(id)

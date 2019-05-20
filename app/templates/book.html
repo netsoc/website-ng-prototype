@@ -14,10 +14,9 @@
 
 <div class="metadata">
     <h1>{{book.title}}</h1>
-    <a href="">{{book.author}}</a>
-    <a href="">{{book.type}}</a>
-    <a href="">{{book.subject}}</a>
-    <a href="">{{book.category}}</a>
+    {% for field in ['author', 'type', 'subject', 'category', 'publisher'] %}
+    <a href="{{ url_for('library', search=field, key=book[field] ) }}">{{book[field]}}</a><br/>
+    {% endfor %}
 
     <div class="rating">
     </div>
