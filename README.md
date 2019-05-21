@@ -42,3 +42,15 @@ The website is effectively read-only. To make changes (e.g. CRUD blog posts), us
 ```bash
 docker exec <app container name> website <command>
 ```
+
+### Importing current posts from WordPress for development
+To get some test posts, you can import the current website's posts to your local database.
+First, you'll need to dump the DB from `snark-www`:
+1. SSH into snark from cube
+2. Run `mysqldump netsocwww > wordpress.sql`
+3. Start the app locally (i.e. `docker-compose up`)
+4. Copy the dump into your local DB container by running `docker cp wordpress.sql New-Netsoc-Website_db_1:/wordpress.sql`
+5. Get a shell in your DB container by doing `docker exec -ti New-Netsoc-Website_db_1:/wordpress.sql`
+6. Create a database for the old data using the `mysql` prompt (and your password)
+7. Import the data by running `mysql -p<password> <your database name> < /wordpress.sql`
+8. Convert the data to the new format (readable by the app) using the CLI - exit from the DB shell and run `docker exec -ti New-Netsoc-Website_app_1 website import db <your database name> root`
