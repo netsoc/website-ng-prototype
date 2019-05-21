@@ -2,6 +2,9 @@ import sys
 import os
 import argparse
 
+class CLIError(Exception):
+    pass
+
 from .. import app, init_tables
 from . import wp_import, blog
 
@@ -38,6 +41,17 @@ def run():
     ex_group.add_argument('--html', help='Force retrieval of post HTML (defaults to Markdown if available)', action='store_true', default=False)
     ex_group.add_argument('--force-markdown', help='If a post has no Markdown, convert it from HTML (via html2text)', action='store_true', default=False)
     blog_get.set_defaults(func=blog.get)
+
+    blog_delete = blog_sub.add_parser('delete', help='Delete a blog post by its ID')
+    blog_delete.add_argument('id', help='Post ID', type=int)
+    blog_delete.set_defaults(func=blog.delete)
+
+    blog_new = blog_sub.add_parser('new', help='Create a new blog post')
+    blog_new.add_argument('-a', '--authors', help='Post author(s) - pass for each author', action='append', required=True)
+    blog_new.add_argument('-e', '--editor', help='Command to run as editor', default='nano')
+    blog_new.add_argument('--html', help='Write HTML directly instead of Markdown', action='store_true', default=False)
+    blog_new.add_argument('title', help='Post title')
+    blog_new.set_defaults(func=blog.new)
 
     args = parser.parse_args()
     sys.exit(args.func(args))

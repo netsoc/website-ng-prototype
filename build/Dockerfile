@@ -1,5 +1,6 @@
 FROM python:3-alpine
 
+RUN apk --no-cache add nano vim
 COPY requirements.txt /opt/
 RUN pip install -r /opt/requirements.txt && \
 	mkdir /opt/netsoc

@@ -84,7 +84,7 @@ def run(args):
         wp_post.post_title = flask.Markup(wp_post.post_title).unescape()
 
         print(f'Importing "{wp_post.post_title}" by {wp_post.post_user.user_login} ({wp_post.post_date})...')
-        author = db.session.query(User).filter_by(name=wp_post.post_user.user_login).first()
+        author = User.query.filter_by(name=wp_post.post_user.user_login).first()
         if not author:
             print(f'Creating new user "{wp_post.post_user.user_login}"')
             author = User(name=wp_post.post_user.user_login)
