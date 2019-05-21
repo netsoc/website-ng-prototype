@@ -30,12 +30,12 @@ Image is MariaDB 10.x. Service is called 'db' which means when accessing it from
 Stored in a MySQL database on `snark-www`. The database is/was `netsocwww`.
 in the table news_wp_posts.
 Every text segment on a page in the previous website was stored as a post and is stored in here.
-See `[here](https://codex.wordpress.org/Database_Description)` for the schema.
+See [`here`](https://codex.wordpress.org/Database_Description) for the schema.
 
 Posts should be easy to display using SQLAlchemy and will be displayed on the home page.
 
 ### New blog post schema
-See `[app/models.py](app/models.py)`.
+See [`app/models.py`](app/models.py).
 
 ## CLI
 The website is effectively read-only. To make changes (e.g. CRUD blog posts), use the CLI:
@@ -50,7 +50,7 @@ First, you'll need to dump the DB from `snark-www`:
 2. Run `mysqldump netsocwww > wordpress.sql`
 3. Start the app locally (i.e. `docker-compose up`)
 4. Copy the dump into your local DB container by running `docker cp wordpress.sql New-Netsoc-Website_db_1:/wordpress.sql`
-5. Get a shell in your DB container by doing `docker exec -ti New-Netsoc-Website_db_1:/wordpress.sql`
+5. Get a shell in your DB container by doing `docker exec -ti New-Netsoc-Website_db_1 /bin/bash`
 6. Create a database for the old data using the `mysql` prompt (and your password)
 7. Import the data by running `mysql -p<password> <your database name> < /wordpress.sql`
 8. Convert the data to the new format (readable by the app) using the CLI - exit from the DB shell and run `docker exec -ti New-Netsoc-Website_app_1 website import db <your database name> root`
