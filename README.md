@@ -30,12 +30,12 @@ Image is MariaDB 10.x. Service is called 'db' which means when accessing it from
 Stored in a MySQL database on `snark-www`. The database is/was `netsocwww`.
 in the table news_wp_posts.
 Every text segment on a page in the previous website was stored as a post and is stored in here.
-See `[here](https://codex.wordpress.org/Database_Description)` for the schema.
+See [`here`](https://codex.wordpress.org/Database_Description) for the schema.
 
 Posts should be easy to display using SQLAlchemy and will be displayed on the home page.
 
 ### New blog post schema
-See `[app/models.py](app/models.py)`.
+See [`app/models.py`](app/models.py).
 
 ## CLI
 The website is effectively read-only. To make changes (e.g. CRUD blog posts), use the CLI:
