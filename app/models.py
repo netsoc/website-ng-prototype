@@ -21,6 +21,6 @@ class BlogPost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.Text, nullable=False)
     time = db.Column(db.DateTime, nullable=False)
-    edited = db.Column(db.DateTime, nullable=False)
+    edited = db.Column(db.DateTime, nullable=True)
     markdown = db.Column(LONGTEXT, nullable=True)
     html = db.Column(LONGTEXT, nullable=False)
