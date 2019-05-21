@@ -20,7 +20,7 @@ def eprint(msg):
 def pretty_authors(post):
     return ', '.join(map(lambda u: u.name, post.authors))
 def pretty_time(time):
-    return time.strftime('%x at %X %Z')
+    return time.astimezone(timezone).strftime('%Y-%m-%d at %X %Z')
 def find_or_make_users(users):
     obj_users = []
     for name in users:
