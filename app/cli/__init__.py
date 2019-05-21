@@ -1,13 +1,15 @@
 import os
 import argparse
 
-from .. import app, db
+from .. import app, init_tables
 from . import wp_import
 
 def c_dev(_args):
     app.run(host='::', port=os.environ['HTTP_PORT'])
 
 def run():
+    init_tables()
+
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers(required=True, dest='command')
 
