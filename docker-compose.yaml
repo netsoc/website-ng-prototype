@@ -2,7 +2,7 @@ version: '3'
 services:
   db:
     image: mariadb:10
-    restart: always
+    restart: on-failure
     volumes:
       - db_data:/var/lib/mysql
     environment:
