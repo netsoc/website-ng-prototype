@@ -32,6 +32,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = URL(
     database=environ['MYSQL_DATABASE']
 )
 db = SQLAlchemy(app)
+from . import models
 
 
 @app.before_first_request
