@@ -1,13 +1,10 @@
 #!/bin/sh
 # main application entrypoint
 
-# python output buffering breaks stdout in docker
-export PYTHONUNBUFFERED=1
-
 if [ "$FLASK_ENV" == "development" ]; then
 	# use flask debug server in development
-	exec python /opt/app/netsoc.py
+	exec /usr/local/bin/website app
 else
 	# use gunicorn in production
-	exec gunicorn --workers $GUNICORN_WORKERS --bind :8080 --chdir /opt/app netsoc:app
+	exec gunicorn --workers $GUNICORN_WORKERS --bind :8080 --chdir /opt netsoc:app
 fi
