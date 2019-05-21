@@ -3,6 +3,8 @@ from sqlalchemy_utc import UtcDateTime
 
 from . import db
 
+# No such thing as arrays in MySQL - we need a separate table that SQLAlchemy will
+# automagically populate / read so we can access a user's posts and a post's author(s)
 post_author_association = db.Table('blog_post_authors', db.Model.metadata,
     db.Column('post_id', db.Integer, db.ForeignKey('blog_posts.id'), nullable=False),
     db.Column('author_id', db.Integer, db.ForeignKey('users.id'), nullable=False)

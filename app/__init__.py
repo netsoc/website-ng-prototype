@@ -26,6 +26,7 @@ app.config.update({
         host='db',
         port=3306,
         database=environ['MYSQL_DATABASE'],
+        # Make sure we're using 4-byte UTF-8 for the MySQL connection
         query={'charset': 'utf8mb4'},
     ),
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,

@@ -12,6 +12,8 @@ from ..models import User, BlogPost
 
 WpBase = declarative_base()
 
+# WordPress schemas so we can pull the posts for conversion (see https://codex.wordpress.org/Database_Description)
+# User is needed so we can get the username
 class WordPressUser(WpBase):
     __tablename__ = 'news_wp_users'
 
@@ -54,6 +56,7 @@ class WordPressPost(WpBase):
     post_mime_type        = sql.Column(VARCHAR(100))
     comment_count         = sql.Column(BIGINT)
 
+    # Not a column, but a relation to conveniently access the author
     post_user             = orm.relationship('WordPressUser')
 
 def run(args):
@@ -65,12 +68,17 @@ def run(args):
         host=args.address,
         port=args.port,
         database=args.database,
+        # Make sure we're using 4-byte UTF-8 for the MySQL connection
         query={'charset': 'utf8mb4'},
     ))
 
     WPSession = orm.sessionmaker(bind=wp_engine)
     wp_session = WPSession()
-    for wp_post in wp_session.query(WordPressPost).filter_by(post_type='post', post_status='publish'):
+    for wp_post in wp_session.query(WordPressPost)\
+            .filter_by(post_type='post', post_status='publish'):
+            # ^^ Everything in WordPress is a goddamn post, we only want
+            # published (https://wordpress.org/support/article/post-status/#publish)
+            # blog posts (https://wordpress.org/support/article/post-types/#posts)
         # Import the unescaped title (some _very_ old posts have stuff like &amp;)
         wp_post.post_title = flask.Markup(wp_post.post_title).unescape()
 
@@ -81,6 +89,7 @@ def run(args):
             author = User(name=wp_post.post_user.user_login)
             db.session.add(author)
 
+        # Create a native (to this app) post from the WordPress one
         db.session.add(BlogPost(
             title=wp_post.post_title,
             authors=[author],
