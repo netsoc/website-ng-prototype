@@ -14,6 +14,7 @@ MYSQL_ROOT_PASSWORD=test
 MYSQL_DATABASE=netsocwww 
 MYSQL_USER=netsoc 
 MYSQL_PASSWORD=website
+TZ=Europe/Dublin
 ```
 3. Run `docker-compose up`
 4. Server should be accessible from http://localhost:8080, hot reload should also work
