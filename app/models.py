@@ -1,4 +1,5 @@
 from sqlalchemy.dialects.mysql import LONGTEXT
+from sqlalchemy_utc import UtcDateTime
 
 from . import db
 
@@ -20,7 +21,7 @@ class BlogPost(db.Model):
 
     id       = db.Column(db.Integer, primary_key=True)
     title    = db.Column(db.Text, nullable=False)
-    time     = db.Column(db.DateTime, nullable=False)
-    edited   = db.Column(db.DateTime, nullable=True)
+    time     = db.Column(UtcDateTime, nullable=False)
+    edited   = db.Column(UtcDateTime, nullable=False)
     markdown = db.Column(LONGTEXT, nullable=True)
     html     = db.Column(LONGTEXT, nullable=False)
