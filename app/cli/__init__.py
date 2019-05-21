@@ -2,6 +2,8 @@ import sys
 import os
 import argparse
 
+DEFAULT_EDITOR = 'nano'
+
 class CLIError(Exception):
     pass
 
@@ -27,7 +29,7 @@ def run():
     p_import.add_argument('user', help='WordPress database user')
     p_import.set_defaults(func=wp_import.run)
 
-    p_blog = subparsers.add_parser('blog', help='Manage blog posts')
+    p_blog = subparsers.add_parser('posts', help='Manage blog posts')
     blog_sub = p_blog.add_subparsers(dest='blog_command')
 
     blog_list = blog_sub.add_parser('list', help='List blog posts')
@@ -48,10 +50,22 @@ def run():
 
     blog_new = blog_sub.add_parser('new', help='Create a new blog post')
     blog_new.add_argument('-a', '--authors', help='Post author(s) - pass for each author', action='append', required=True)
-    blog_new.add_argument('-e', '--editor', help='Command to run as editor', default='nano')
+    blog_new.add_argument('-e', '--editor', help='Command to run as editor', default=DEFAULT_EDITOR)
     blog_new.add_argument('--html', help='Write HTML directly instead of Markdown', action='store_true', default=False)
     blog_new.add_argument('title', help='Post title')
     blog_new.set_defaults(func=blog.new)
+
+    blog_edit = blog_sub.add_parser('edit', help='Edit an existing blog post')
+    blog_edit.add_argument('-t', '--title', help='Updated post title')
+    blog_edit.add_argument('-a', '--authors', help='Updated post author(s) - replaces existing authors if passed', action='append')
+    blog_edit.add_argument('-e', '--editor', help='Command to run as editor', default=DEFAULT_EDITOR)
+    ex_group = blog_edit.add_mutually_exclusive_group()
+    ex_group.add_argument('--no-content', help='Only edit attributes (e.g. title, authors)', action='store_true', default=False)
+    ex_group.add_argument('--html', help='Force editing of post HTML (defaults to Markdown if available), '+
+            'WARNING: Passing this option when a Markdown version exists will remove the Markdown version', action='store_true', default=False)
+    ex_group.add_argument('--force-markdown', help='If a post has no Markdown, convert it from HTML (via html2text) before editing', action='store_true', default=False)
+    blog_edit.add_argument('id', help='Post ID', type=int)
+    blog_edit.set_defaults(func=blog.edit)
 
     args = parser.parse_args()
     sys.exit(args.func(args))
