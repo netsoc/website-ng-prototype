@@ -6,6 +6,8 @@ services:
     command:
       # Needed because our app uses connection pooling
       - --wait_timeout=28800
+      # Needed so the created DB uses UTF-8
+      - --character-set-server=utf8mb4
     volumes:
       - $MYSQL_DATA:/var/lib/mysql
     environment:
