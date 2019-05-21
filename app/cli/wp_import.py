@@ -3,6 +3,7 @@ from getpass import getpass
 import sqlalchemy as sql
 import sqlalchemy.orm as orm
 from sqlalchemy.dialects.mysql import INTEGER, BIGINT, LONGTEXT, MEDIUMTEXT, VARCHAR
+from sqlalchemy_utc import UtcDateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine.url import URL
 import flask
@@ -23,7 +24,7 @@ class WordPressUser(WpBase):
     user_nicename         = sql.Column(VARCHAR(50))
     user_email            = sql.Column(VARCHAR(100))
     user_url              = sql.Column(VARCHAR(100))
-    user_registered       = sql.Column(sql.DateTime)
+    user_registered       = sql.Column(UtcDateTime)
     user_activation_key   = sql.Column(VARCHAR(60))
     user_status           = sql.Column(INTEGER(11))
     display_name          = sql.Column(VARCHAR(250))
@@ -33,8 +34,8 @@ class WordPressPost(WpBase):
 
     id                    = sql.Column(BIGINT(unsigned=True), primary_key=True)
     post_author           = sql.Column(BIGINT(unsigned=True), sql.ForeignKey('news_wp_users.id'), nullable=False)
-    post_date             = sql.Column(sql.DateTime, unique=False, nullable=False)
-    post_date_gmt         = sql.Column(sql.DateTime, unique=False, nullable=False)
+    post_date             = sql.Column(UtcDateTime, unique=False, nullable=False)
+    post_date_gmt         = sql.Column(UtcDateTime, unique=False, nullable=False)
     post_content          = sql.Column(LONGTEXT, unique=False, nullable=False)
     post_title            = sql.Column(MEDIUMTEXT, nullable=False)
     post_category         = sql.Column(sql.Integer)
@@ -46,8 +47,8 @@ class WordPressPost(WpBase):
     post_name             = sql.Column(VARCHAR(200), unique=False)
     to_ping               = sql.Column(MEDIUMTEXT)
     pinged                = sql.Column(MEDIUMTEXT)
-    post_modified         = sql.Column(sql.DateTime)
-    post_modified_gmt     = sql.Column(sql.DateTime)
+    post_modified         = sql.Column(UtcDateTime)
+    post_modified_gmt     = sql.Column(UtcDateTime)
     post_content_filtered = sql.Column(LONGTEXT)
     post_parent           = sql.Column(BIGINT(unsigned=True))
     guid                  = sql.Column(VARCHAR(255))
