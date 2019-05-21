@@ -10,17 +10,17 @@ post_author_association = db.Table('blog_post_authors', db.Model.metadata,
 class User(db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(32), nullable=False)
+    id       = db.Column(db.Integer, primary_key=True)
+    name     = db.Column(db.String(32), nullable=False)
 
-    posts = db.relationship('BlogPost', secondary=post_author_association, backref='authors')
+    posts    = db.relationship('BlogPost', secondary=post_author_association, backref='authors')
 
 class BlogPost(db.Model):
     __tablename__ = 'blog_posts'
 
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text, nullable=False)
-    time = db.Column(db.DateTime, nullable=False)
-    edited = db.Column(db.DateTime, nullable=True)
+    id       = db.Column(db.Integer, primary_key=True)
+    title    = db.Column(db.Text, nullable=False)
+    time     = db.Column(db.DateTime, nullable=False)
+    edited   = db.Column(db.DateTime, nullable=True)
     markdown = db.Column(LONGTEXT, nullable=True)
-    html = db.Column(LONGTEXT, nullable=False)
+    html     = db.Column(LONGTEXT, nullable=False)

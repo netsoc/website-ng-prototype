@@ -19,21 +19,20 @@ app.config.update({
     'SERVER_NAME': f"{environ['PUBLIC_HOST']}:{environ['HTTP_PORT']}" if development else environ['PUBLIC_HOST'],
     # It's CURRENT_YEAR, people
     'PREFERRED_URL_SCHEME': 'http' if development else 'https',
+    'SQLALCHEMY_DATABASE_URI': URL(
+        drivername='mysql+mysqlconnector',
+        username=environ['MYSQL_USER'],
+        password=environ['MYSQL_PASSWORD'],
+        host='db',
+        port=3306,
+        database=environ['MYSQL_DATABASE'],
+        query={'charset': 'utf8mb4'},
+    ),
     'SQLALCHEMY_TRACK_MODIFICATIONS': False,
 })
 
-
-app.config["SQLALCHEMY_DATABASE_URI"] = URL(
-    drivername='mysql+mysqlconnector',
-    username=environ['MYSQL_USER'],
-    password=environ['MYSQL_PASSWORD'],
-    host='db',
-    port=3306,
-    database=environ['MYSQL_DATABASE']
-)
 db = SQLAlchemy(app)
 from . import models
-
 
 @app.before_first_request
 def init_tables():

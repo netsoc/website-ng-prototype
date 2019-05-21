@@ -5,6 +5,10 @@ import sqlalchemy.orm as orm
 from sqlalchemy.dialects.mysql import INTEGER, BIGINT, LONGTEXT, MEDIUMTEXT, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.engine.url import URL
+import flask
+
+from .. import db
+from ..models import User, BlogPost
 
 WpBase = declarative_base()
 
@@ -60,10 +64,28 @@ def run(args):
         password=password,
         host=args.address,
         port=args.port,
-        database=args.database
+        database=args.database,
+        query={'charset': 'utf8mb4'},
     ))
 
     WPSession = orm.sessionmaker(bind=wp_engine)
     wp_session = WPSession()
-    for post in wp_session.query(WordPressPost).limit(5):
-        print(f'Found "{post.post_title}" by {post.post_user.user_login} ({post.post_date})')
+    for wp_post in wp_session.query(WordPressPost).filter_by(post_type='post', post_status='publish'):
+        # Import the unescaped title (some _very_ old posts have stuff like &amp;)
+        wp_post.post_title = flask.Markup(wp_post.post_title).unescape()
+
+        print(f'Importing "{wp_post.post_title}" by {wp_post.post_user.user_login} ({wp_post.post_date})...')
+        author = db.session.query(User).filter_by(name=wp_post.post_user.user_login).first()
+        if not author:
+            print(f'Creating new user "{wp_post.post_user.user_login}"')
+            author = User(name=wp_post.post_user.user_login)
+            db.session.add(author)
+
+        db.session.add(BlogPost(
+            title=wp_post.post_title,
+            authors=[author],
+            time=wp_post.post_date,
+            edited=wp_post.post_modified,
+            html=wp_post.post_content
+        ))
+        db.session.commit()
