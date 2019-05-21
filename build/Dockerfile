@@ -2,8 +2,9 @@ FROM python:3-alpine
 
 COPY requirements.txt /opt/
 RUN pip install -r /opt/requirements.txt && \
-	mkdir /opt/app
+	mkdir /opt/netsoc
 
+COPY website /usr/local/bin/
 COPY app.sh /opt/
 
 USER nobody:nogroup
