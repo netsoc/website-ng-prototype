@@ -30,6 +30,7 @@ def run():
     p_import.set_defaults(func=wp_import.run)
 
     p_blog = subparsers.add_parser('posts', help='Manage blog posts')
+    p_blog.set_defaults(func=blog.list_simple)
     blog_sub = p_blog.add_subparsers(dest='blog_command')
 
     blog_list = blog_sub.add_parser('list', help='List blog posts')

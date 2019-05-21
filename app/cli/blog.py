@@ -51,6 +51,11 @@ def list(args):
     for post in query:
         print(f'#{post.id}: "{post.title}" by {pretty_authors(post)} (last modified on {pretty_time(post.edited)})')
 
+def list_simple(args):
+    args.limit = 10
+    args.reverse = False
+    list(args)
+
 def get(args):
     post = get_post(args.id)
 
