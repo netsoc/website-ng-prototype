@@ -11,26 +11,37 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 # Make sure request.remote_addr represents the real client IP
-#app.wsgi_app = ProxyFix(app.wsgi_app)
-
-maria_db = {
-    'drivername': 'mysql+mysqlconnector',
-    'username': environ['MYSQL_USER'], 
-    'password': environ['MYSQL_PASSWORD'],
-    # This is specific to this setup will need to change 
-    'host': 'db',
-    'port': 3306,
-    'database': environ['MYSQL_DATABASE']
-
-}
-
-app.config["SQLALCHEMY_DATABASE_URI"] = URL(**maria_db)
-db = SQLAlchemy(app)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 
 # Had to include these due to how database was made(legacy issues wooo)
 from sqlalchemy.dialects.mysql import INTEGER, BIGINT, LONGTEXT, MEDIUMTEXT, VARCHAR
 
+# Configuration is provided through environment variables by Docker Compose
+development = not environ['FLASK_ENV'] == 'production'
+app.config.update({
+    'SECRET_KEY': environ['FLASK_SECRET'],
+    # Only want to include port in development mode - in production we will be reverse-proxied
+    'SERVER_NAME': f"{environ['PUBLIC_HOST']}:{environ['HTTP_PORT']}" if development else environ['PUBLIC_HOST'],
+    # It's CURRENT_YEAR, people
+    'PREFERRED_URL_SCHEME': 'http' if development else 'https',
+    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+})
+
+
+db_config = {
+    'drivername': 'mysql+mysqlconnector',
+    'username': environ['MYSQL_USER'], 
+    'password': environ['MYSQL_PASSWORD'],
+    'host': 'db',
+    'port': 3306,
+    'database': environ['MYSQL_DATABASE']
+}
+app.config["SQLALCHEMY_DATABASE_URI"] = URL(**db_config)
+db = SQLAlchemy(app)
+
+# Had to include these due to how database was made(legacy issues wooo)
+from sqlalchemy.dialects.mysql import INTEGER, BIGINT, LONGTEXT, MEDIUMTEXT, VARCHAR
 # Class used for blog posts on the netsoc website
 class BlogPost(db.Model):
     id = db.Column(BIGINT(unsigned=True), primary_key=True)
@@ -58,18 +69,11 @@ class BlogPost(db.Model):
     post_mime_type = db.Column(VARCHAR(100))
     comment_count  = db.Column(BIGINT)
 
-# Create tables defined above if they don't exist otherwise load them in
-db.create_all()
+@app.before_first_request
+def init_tables():
+    # Create tables defined above if they don't exist otherwise load them in
+    db.create_all()
 
-# Configuration is provided through environment variables by Docker Compose
-development = not environ['FLASK_ENV'] == 'production'
-app.config.update({
-    'SECRET_KEY': environ['FLASK_SECRET'],
-    # Only want to include port in development mode - in production we will be reverse-proxied
-    'SERVER_NAME': f"{environ['PUBLIC_HOST']}:{environ['HTTP_PORT']}" if development else environ['PUBLIC_HOST'],
-    # It's CURRENT_YEAR, people
-    'PREFERRED_URL_SCHEME': 'http' if development else 'https',
-})
 
 @app.route('/')
 def home():

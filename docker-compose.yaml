@@ -2,9 +2,11 @@ version: '3'
 services:
   db:
     image: mariadb:10
-    restart: always
+    restart: on-failure
+    command:
+      - --wait_timeout=28800
     volumes:
-      - db_data:/var/lib/mysql
+      - $MYSQL_DATA:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -24,12 +26,8 @@ services:
       - FLASK_SECRET=${FLASK_SECRET}
       - PUBLIC_HOST=${PUBLIC_HOST}
       - HTTP_PORT=${HTTP_PORT}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "$HTTP_PORT:8080"
-
-volumes:
-  db_data:

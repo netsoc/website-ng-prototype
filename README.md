@@ -11,6 +11,7 @@ FLASK_ENV=development
 FLASK_SECRET=hunter2
 PUBLIC_HOST=localhost
 HTTP_PORT=8080
+MYSQL_DATA=./data
 MYSQL_ROOT_PASSWORD=test 
 MYSQL_DATABASE=netsocwww 
 MYSQL_USER=netsoc 
