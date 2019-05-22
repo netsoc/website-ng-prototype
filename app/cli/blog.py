@@ -9,7 +9,7 @@ from html2text import html2text
 import markdown
 import tzlocal
 
-from .. import db
+from .. import db, pretty_authors
 from ..models import User, BlogPost
 from . import CLIError
 
@@ -18,8 +18,6 @@ md = markdown.Markdown(output_format='html5')
 
 def eprint(msg):
     print(msg, file=sys.stderr)
-def pretty_authors(post):
-    return ', '.join(map(lambda u: u.name, post.authors))
 def pretty_time(time):
     return time.astimezone(timezone).strftime('%Y-%m-%d at %X %Z')
 def find_or_make_users(users):
@@ -168,6 +166,7 @@ def edit(args):
         else:
             post.markdown = content
             post.html = md.convert(content)
+    post.edited = datetime.now(tz=timezone)
 
     db.session.add(post)
     db.session.commit()
