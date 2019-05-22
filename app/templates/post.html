@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}{{ post.title }}{% endblock %}</h1>
+<h3>Posted by {{ post|pretty_authors }} on {{ post.time|post_date }}
+	{% if post.edited != post.time %}(edited {{ post.edited|post_date }}){% endif %}</h3>
+{% endblock %}
+
+{% block content %}
+{{ post.html|safe }}
+{% endblock %}
