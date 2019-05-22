@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
 
-{% block title %} New Members {% endblock %}
-
 {% block header %}
-<h1>New Members</h1>
+<h1>{% block title %}New Members{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -47,5 +45,4 @@ See <a title="Webspace" href="/index.php?title=Webspace">Webspace</a> for more i
 <div  style="width: 100%;"><iframe width="100%" height="480" src="https://www.youtube.com/embed/VKoIxePopEs" frameborder="0" allowfullscreen=""></iframe></div>
 <p></p>
 </div>
-
 {% endblock %}

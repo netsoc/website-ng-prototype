@@ -18,6 +18,10 @@ class User(db.Model):
 
     posts    = db.relationship('BlogPost', secondary=post_author_association, backref='authors')
 
+    @classmethod
+    def find_one(cls, name):
+        return cls.query.filter_by(name=name).first()
+
 class BlogPost(db.Model):
     __tablename__ = 'blog_posts'
 
@@ -27,3 +31,7 @@ class BlogPost(db.Model):
     edited   = db.Column(UtcDateTime, nullable=False)
     markdown = db.Column(LONGTEXT, nullable=True)
     html     = db.Column(LONGTEXT, nullable=False)
+
+    @classmethod
+    def find_one(cls, id):
+        return cls.query.filter_by(id=id).first()

@@ -1,35 +1,31 @@
 <!doctype html>
 <html>
+	<head>
+		<title>Netsoc - {% block title %}{% endblock %}</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	</head>
+	<body>
+		<section>
+			<ul>
+				<li><a href="{{ url_for('home') }}" title="Home">Home</a></li>
+				<li><a href="{{ url_for('about') }}">About Us</a></li>
+				<li><a href="{{ url_for('library') }}">Library</a></li>
+				<li><a href="{{ url_for('sign_up') }}">Sign Up</a></li>
+				<li><a href="{{ url_for('committee') }}">Committee</a></li>
+				<li><a href="{{ url_for('services') }}">Services</a></li>
+				<li><a href="{{ url_for('wiki') }}">Wiki</a></li>
+				<li><a href="{{ url_for('new_members') }}">New Members</a></li>
+				<li><a href="{{ url_for('file_storage') }}">File Storage</a></li>
+				<li><a href="{{ url_for('mail_lists') }}">Mailing Lists</a></li>
+				<li><a href="{{ url_for('slides') }}">Slides</a></li>
+			</ul>
 
-<head>
-<title>Netsoc - {% block title %}{% endblock %} </title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
-</head>
+			<header>
+				{% block header %}{% endblock %}
+			</header>
 
-<body>
-<section>
-
-<ul>
-    <li> <a href="https://www.netsoc.tcd.ie/news/" title="Home">Home</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/about-us/">About Us</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/library/">Library</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/sign-up/">Sign Up</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/committee/">Committee</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/services/">Services</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/wiki/">Wiki</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/new-members/">New Members</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/file-storage/">File Storage</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/mailing-lists/">Mailing Lists</a> </li>
-    <li> <a href="https://www.netsoc.tcd.ie/news/slides/">Slides</a> </li>
-</ul>
-
-<header>
-    {% block header %}{% endblock %}
-</header>
-
-  {% block content %}{% endblock %}
-</section>
-</body>
-
+			{% block content %}{% endblock %}
+		</section>
+	</body>
 </html>

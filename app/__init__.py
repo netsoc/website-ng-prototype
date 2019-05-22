@@ -1,10 +1,21 @@
 from os import environ
 
+import tzlocal
+import html2text
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import Flask, render_template
+from flask import Flask, render_template, abort
 from sqlalchemy.engine.url import URL
 from sqlalchemy import create_engine
 from flask_sqlalchemy import SQLAlchemy
+
+timezone = tzlocal.get_localzone()
+
+summarizer = html2text.HTML2Text()
+summarizer.ignore_links = True
+summarizer.ignore_anchors = True
+summarizer.images_to_alt = True
+summarizer.ignore_emphasis = True
+summarizer.ignore_tables = True
 
 app = Flask(__name__)
 # Make sure request.remote_addr represents the real client IP
@@ -34,17 +45,38 @@ app.config.update({
 
 db = SQLAlchemy(app)
 from . import models
+from .models import BlogPost
 
 @app.before_first_request
 def init_tables():
     # Create tables defined above if they don't exist otherwise load them in
     db.create_all()
 
+@app.template_filter()
+def pretty_authors(post):
+    return ', '.join(map(lambda u: u.name, post.authors))
+@app.template_filter()
+def post_date(time):
+    return time.astimezone(timezone).strftime('%Y-%m-%d at %-H:%M')
+@app.template_filter()
+def html2text(text):
+    return summarizer.handle(text)
 
 @app.route('/')
 def home():
-    print(db.metadata.tables)
-    return render_template("home.html")
+    posts = BlogPost.query\
+            .order_by(BlogPost.time.desc())\
+            .paginate(per_page=10)
+
+    return render_template("home.html", posts=posts)
+
+@app.route('/posts/<int:id>')
+def post(id):
+    post = BlogPost.find_one(id)
+    if not post:
+        return abort(404)
+
+    return render_template("post.html", post=post)
 
 @app.route('/about-us')
 def about():

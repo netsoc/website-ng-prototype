@@ -1,3 +1,29 @@
-<!doctype html>
-<title>Hello from Flask</title>
-<h1>Hello, World!</h1>
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Home{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% for post in posts.items %}
+<div>
+	<a href="{{ url_for('post', id=post.id) }}"><h2>{{ post.title }}</h2></a>
+	<h3>Posted by {{ post|pretty_authors }} on {{ post.time|post_date }}
+		{% if post.edited != post.time %}(edited {{ post.edited|post_date }}){% endif %}</h3>
+	<p>{{ post.html|html2text|truncate }}</p>
+</div>
+{% endfor %}
+<div>
+{%- for page in posts.iter_pages() %}
+	{% if page %}
+		{% if page != posts.page %}
+			<a href="{{ url_for('home', page=page) }}">{{ page }}</a>
+		{% else %}
+			<strong>{{ page }}</strong>
+		{% endif %}
+	{% else %}
+		<span>…</span>
+	{% endif %}
+{%- endfor %}
+</div>
+{% endblock %}
