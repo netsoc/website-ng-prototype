@@ -25,7 +25,7 @@ def pretty_time(time):
 def find_or_make_users(users):
     obj_users = []
     for name in users:
-        u = User.query.filter_by(name=name).first()
+        u = User.find_one(name)
         if not u:
             u = User(name=name)
             db.session.add(u)
@@ -33,9 +33,7 @@ def find_or_make_users(users):
     db.session.commit()
     return obj_users
 def get_post(id):
-    post = BlogPost.query\
-            .filter_by(id=id)\
-            .first()
+    post = BlogPost.find_one(id)
     if not post:
         raise CLIError(f'Post #{id} not found')
     return post
