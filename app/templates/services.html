@@ -1,18 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %} Services {% endblock %}
-
 {% block header %}
-<h1>Services</h1>
+<h1>{% block title %}Services{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-
 <h2>What we offer</h2>
-<p>Each year, netsoc adds to the <a href="/about/">list of services</a> that we offer our members. In addition to some of the best parties, holidays and nerd-talks, each week we run tutorials on web-design and related tech stuff.</p>
+<p>Each year, Netsoc adds to the <a href="{{ url_for('about') }}">list of services</a> that we offer our members. In addition to some of the best parties, holidays and nerd-talks, each week we run tutorials on web-design and related tech stuff.</p>
 <p>We have a well stocked <a href="http://netsoc.tcd.ie/news/library">library</a> with over 100 technical, fictional and cartoon books, which we add to every year. We also have backdated <a href="http://www.wired.com/">Wired</a> magazines (currently in the <abbr title="Junior Common Room"><a href="http://www.tcd.ie/Trinity_Life/JCR/">JCR</a></abbr>).</p>
 <p>Our <a href="room/">society room</a> is also open to members. You can use our Linux, OpenBSD, Solaris, MacOS and Win2k machines and create DVDs on our DVD/CD burner.</p>
 <p>On top of all that, we offer free <a href="http://support.netsoc.tcd.ie/">technical support</a> and <a href="tutorials/">tutorials</a> to all members, and have a few new surprises in store for the coming year!</p>
-<p></p>
-
 {% endblock %}

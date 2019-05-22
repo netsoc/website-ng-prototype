@@ -1,9 +1,7 @@
 {% extends 'base.html' %}
 
-{% block title %} Wiki {% endblock %}
-
 {% block header %}
-<h1>Wiki</h1>
+<h1>{% block title %}Wiki{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
@@ -13,5 +11,4 @@
     If you still have a question that isn’t covered on the wiki, feel free to email
     <a title="support" href="mailto:support@netsoc.ie">support@netsoc.ie</a>.
 </p>
-
 {% endblock %}

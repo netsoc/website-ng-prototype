@@ -43,7 +43,6 @@ def init_tables():
 
 @app.route('/')
 def home():
-    print(db.metadata.tables)
     return render_template("home.html")
 
 @app.route('/about-us')
