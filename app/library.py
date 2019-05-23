@@ -6,7 +6,7 @@ Mock DB functions
 '''
 def books_from_csv():
     books = []
-    with open('/opt/app/static/lib.csv') as f:
+    with open('/opt/netsoc/static/lib.csv') as f:
         reader = csv.reader(f)
         headers = next(reader, None)
         for line in reader:

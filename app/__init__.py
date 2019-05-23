@@ -6,12 +6,8 @@ from sqlalchemy.engine.url import URL
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import html2text
-import library as lib
 import tzlocal
 from flask_sqlalchemy import SQLAlchemy
-
-from . import models
-from .models import BlogPost
 
 timezone = tzlocal.get_localzone()
 
@@ -50,6 +46,9 @@ app.config.update({
 })
 
 db = SQLAlchemy(app)
+from . import library, models
+from .library import lookup, books_from_csv
+from .models import BlogPost
 
 @app.before_first_request
 def init_tables():
@@ -98,7 +97,7 @@ test = [
 @app.route('/library/<search>/<key>')
 def library(search=None, key=None):
     #print(search, key)
-    books=lib.books_from_csv()
+    books=books_from_csv()
     if search:
         books = [b for b in books if key in b[search]]
     return render_template("library.html", books=books, search=search, key=key)
@@ -107,7 +106,7 @@ def library(search=None, key=None):
 @app.route('/library/book/<id>')
 def book(id):
     # retrive book from db
-    book = lib.lookup(id)
+    book =lookup(id)
     print(book)
     return render_template('book.html', book=book)
 
