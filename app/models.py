@@ -9,6 +9,10 @@ post_author_association = db.Table('blog_post_authors', db.Model.metadata,
     db.Column('post_id', db.Integer, db.ForeignKey('blog_posts.id'), nullable=False),
     db.Column('author_id', db.Integer, db.ForeignKey('users.id'), nullable=False)
 )
+book_author_association = db.Table('book_authors', db.Model.metadata,
+    db.Column('book_id', db.Integer, db.ForeignKey('library.id'), nullable=False),
+    db.Column('author_id', db.Integer, db.ForeignKey('book_authors.id'), nullable=False)
+)
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -35,3 +39,27 @@ class BlogPost(db.Model):
     @classmethod
     def find_one(cls, id):
         return cls.query.filter_by(id=id).first()
+
+class BookAuthor(db.Model):
+    __tablename__ = 'book_authors'
+
+    id       = db.Column(db.Integer, primary_key=True)
+    name     = db.Column(db.String(32), nullable=False)
+
+    books    = db.relationship('Book', secondary=book_author_association, backref='authors')
+
+
+class Book(db.Model):
+    __tablename__ = 'library'
+
+    id          = db.Column(db.Integer, primary_key=True)
+    title       = db.Column(db.Text, nullable=False)
+    callnumber  = db.Column(db.String(15), nullable=False)
+    isbn13      = db.Column(db.String(13), nullable=False)
+    image_url   = db.Column(db.Text, nullable=True)
+    publisher   = db.Column(db.String(120), nullable=True)
+    description = db.Column(LONGTEXT, nullable=True)
+    rating      = db.Column(db.Float, nullable=True)
+    num_page    = db.Column(db.Integer, nullable=True)
+    edition     = db.Column(db.String(20), nullable=True)
+
