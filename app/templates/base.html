@@ -2,8 +2,21 @@
 <html>
 	<head>
 		<title>Netsoc - {% block title %}{% endblock %}</title>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
 		<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 		<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	<!-- Latest compiled and minified CSS for bootstrap -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+<style>body {
+  min-height: 2000px;
+  padding-top: 70px;
+}
+</style>	
+{% block style %} {% endblock %}
 	</head>
 	<body>
 		<section>

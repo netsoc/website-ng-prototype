@@ -1,0 +1,8 @@
+.container {
+  display: flex; /* or inline-flex */
+}
+
+img {
+	max-height: 50%;
+	max-width: 90%;
+}
