@@ -5,11 +5,11 @@
 {% endblock %}
 
 {% block content %}
-
+<div class="jumbotron">
 <h2>Posts</h2>
 <div id='posts'>
 {% for post in posts.items %}
-<div>
+<div class="list-group-item">
 	<a href="{{ url_for('post', id=post.id) }}"><h2>{{ post.title }}</h2></a>
 	<h3>Posted by {{ post|pretty_authors }} on {{ post.time|post_date }}
 		{% if post.edited != post.time %}(edited {{ post.edited|post_date }}){% endif %}</h3>
@@ -29,5 +29,6 @@
 		<span>…</span>
 	{% endif %}
 {%- endfor %}
+</div>
 </div>
 {% endblock %}

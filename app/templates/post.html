@@ -8,24 +8,22 @@
 
 {% block header %}
 
-<div class="container">
-
 
 <div class="jumbotron">
-<h1>{% block title %}{{ post.title }}{% endblock %}</h1>
+
+	<h1>{% block title %}{{ post.title }}{% endblock %}</h1>
 <h3>Posted by {{ post|pretty_authors }} on {{ post.time|post_date }}
 	{% if post.edited != post.time %}(edited {{ post.edited|post_date }}){% endif %}</h3>
+
+
+{{ post.html|safe }}
+
 </div>
-</div>
+
+
 {% endblock %}
 
 
 {% block content %}
-<div class="container">
-<div class="jumbotron row justify-content-center">
-
-{{ post.html|safe }}
-</div>
-</div>
 {% endblock %}
 
