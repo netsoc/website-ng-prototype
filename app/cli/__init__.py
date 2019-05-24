@@ -8,7 +8,7 @@ class CLIError(Exception):
     pass
 
 from .. import app, init_tables
-from . import wp_import, blog
+from . import wp_import, blog, library
 
 def c_dev(_args):
     app.run(host='::', port=os.environ['HTTP_PORT'])
@@ -77,6 +77,21 @@ def run():
     ex_group.add_argument('--force-markdown', help='If a post has no Markdown, convert it from HTML (via html2text) before editing', action='store_true', default=False)
     blog_edit.add_argument('id', help='Post ID', type=int)
     blog_edit.set_defaults(func=blog.edit)
+
+    # Book/Library command
+    p_books = subparsers.add_parser('books', help='Manage the library')
+    p_books.set_defaults(func=library.list_simple)
+    books_sub = p_books.add_subparsers(dest='blog_command')
+
+    # Book deletion command
+    book_delete = books_sub.add_parser('delete', help='Delete a book post by its ID or ISBN')
+    book_delete.add_argument('id', help='Post ID', type=int)
+    book_delete.set_defaults(func=library.delete)
+
+    # Book creation command
+    book_new = books_sub.add_parser('new', help='Add a new book to the library')
+    book_new.add_argument('isbn13', help='The isbn of the book')
+    book_new.set_defaults(func=library.new)
 
     args = parser.parse_args()
     sys.exit(args.func(args))
