@@ -1,11 +1,29 @@
 {% extends 'base.html' %}
 
-{% block header %}
-<h1>{% block title %}{{ post.title }}{% endblock %}</h1>
-<h3>Posted by {{ post|pretty_authors }} on {{ post.time|post_date }}
-	{% if post.edited != post.time %}(edited {{ post.edited|post_date }}){% endif %}</h3>
+ {% block style  %}
+<link rel="stylesheet" type="text/css" href={{ url_for('static', filename='posts.css')}} >
 {% endblock %}
 
-{% block content %}
+
+
+{% block header %}
+
+
+<div class="jumbotron">
+
+	<h1>{% block title %}{{ post.title }}{% endblock %}</h1>
+<h3>Posted by {{ post|pretty_authors }} on {{ post.time|post_date }}
+	{% if post.edited != post.time %}(edited {{ post.edited|post_date }}){% endif %}</h3>
+
+
 {{ post.html|safe }}
+
+</div>
+
+
 {% endblock %}
+
+
+{% block content %}
+{% endblock %}
+
