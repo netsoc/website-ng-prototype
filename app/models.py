@@ -43,10 +43,13 @@ class BlogPost(db.Model):
 class BookAuthor(db.Model):
     __tablename__ = 'authors'
 
-    id       = db.Column(db.Integer, primary_key=True)
-    name     = db.Column(db.String(32), nullable=False)
+    id        = db.Column(db.Integer, primary_key=True)
+    name      = db.Column(db.String(64), nullable=False)
+    about     = db.Column(LONGTEXT, nullable=True)
+    gr_link   = db.Column(db.Text, nullable=True)
+    image_url = db.Column(db.Text, nullable=True)
 
-    books    = db.relationship('Book', secondary=book_author_association, backref='authors')
+    books     = db.relationship('Book', secondary=book_author_association, backref='authors')
 
     @classmethod
     def find_one(cls, name):
@@ -58,11 +61,12 @@ class Book(db.Model):
 
     id          = db.Column(db.Integer, primary_key=True)
     title       = db.Column(db.Text, nullable=False)
-    callnumber  = db.Column(db.String(15), nullable=False) # TODO add unique 
+    callnumber  = db.Column(db.String(15), unique=True, nullable=True)
+    isbn        = db.Column(db.String(10), unique=True, nullable=True)
     isbn13      = db.Column(db.String(13), unique=True, nullable=False)
     image_url   = db.Column(db.Text, nullable=True)
     publisher   = db.Column(db.String(120), nullable=True)
     description = db.Column(LONGTEXT, nullable=True)
     rating      = db.Column(db.Float, nullable=True)
     num_pages   = db.Column(db.Integer, nullable=True)
-    edition     = db.Column(db.String(20), nullable=True)
+    edition     = db.Column(db.String(40), nullable=True)

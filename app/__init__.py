@@ -46,9 +46,8 @@ app.config.update({
 })
 
 db = SQLAlchemy(app)
-from . import library, models
-from .library import lookup, books_from_csv
-from .models import BlogPost
+from . import models
+from .models import BlogPost, Book
 
 @app.before_first_request
 def init_tables():
@@ -85,29 +84,23 @@ def post(id):
 def about():
     return render_template("about-us.html")
 
-test = [
-        {'title': 'acb','id':1, 'author': 'some person', 'description': 'this is a book about stuff'},
-        {'title': 'b','id':2},
-        {'title': 'c','id':3},
-        {'title': 'd','id':4},
-    ]
-
 # Needs to be able to handle the current library system
 @app.route('/library/')
 @app.route('/library/<search>/<key>')
 def library(search=None, key=None):
-    #print(search, key)
-    books=books_from_csv()
     if search:
-        books = [b for b in books if key in b[search]]
+        # TODO fix search
+        kwargs={search:key}
+        books = Book.query.filter_by(**kwargs)
+    else:
+        books = Book.query
     return render_template("library.html", books=books, search=search, key=key)
     # return "Books are for nerds"
 
 @app.route('/library/book/<id>')
 def book(id):
     # retrive book from db
-    book =lookup(id)
-    print(book)
+    book = Book.query.filter_by(id=id).first_or_404()
     return render_template('book.html', book=book)
 
 # This one will be a bit awkward as need way to write to openldap

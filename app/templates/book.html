@@ -9,14 +9,19 @@
     <!-- {insert search template??} -->
 
 <div> <!-- IMG -->
-    <img alt="{{book.callnumber}}" src="{{book.thumburl}}"/>
+    <img alt="{{book.callnumber}}" src="{{book.image_url}}"/>
 </div>
 
 <div class="metadata">
     <h1>{{book.title}}</h1>
-    {% for field in ['author', 'type', 'subject', 'category', 'publisher'] %}
-    <a href="{{ url_for('library', search=field, key=book[field] ) }}">{{book[field]}}</a><br/>
-    {% endfor %}
+    <p>
+        {{book|pretty_authors}}<\br>
+        {{book.callnumber}}<\br>
+        {{book.rating}}
+    </p>
+    <!-- {% for field in ['author', 'type', 'subject', 'category', 'publisher'] %}
+         <a href="{{ url_for('library', search=field, key=book[field] ) }}">{{book[field]}}</a><br/>
+         {% endfor %} -->
 
     <div class="rating">
     </div>
@@ -26,7 +31,7 @@
         </p>
     </div>
     <p>
-        {{book.publisher}} {{book.pupdate}} :: {{book.isbn}}
+        {{book.publisher}} :: {{book.isbn13}}
     </p>
 </div>
 

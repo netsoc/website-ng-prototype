@@ -90,8 +90,29 @@ def run():
 
     # Book creation command
     book_new = books_sub.add_parser('new', help='Add a new book to the library')
-    book_new.add_argument('isbn13', help='The isbn of the book')
-    book_new.set_defaults(func=library.new)
+    ex_group = book_new.add_mutually_exclusive_group()
+    ex_group.add_argument('-s','--single', help='Add a sinlge book: generated from ISBN')
+    ex_group.add_argument('-l','--list', action='store_true', help='Add a multiple books: generated from ISBN, REQUIRES: interactive docker')
+    ex_group.add_argument('-m','--manual', action='store_true', help='Add a single book manually')
+    book_new.add_argument('-e', '--editor', nargs='?', help='Command to run as editor for manual editing only', default=DEFAULT_EDITOR)
+    book_new.set_defaults(func=library.new, list=False)
+
+    # Book retrieval command
+    book_get = books_sub.add_parser('get', help='Retrieve a Book its ID or isbn')
+    book_get.add_argument('id', help='Post ID')
+    book_get.set_defaults(func=library.get)
+
+    # Blog posts editing command
+    book_edit = books_sub.add_parser('edit', help='Edit an existing book')
+    book_edit.add_argument('id', help='Book ID or ISBN(13)')
+    book_edit.add_argument('-e', '--editor', nargs='?', help='Command to run as editor', default=DEFAULT_EDITOR)
+    book_edit.set_defaults(func=library.edit)
+
+
+    # Book retrieval command
+    book_drop = books_sub.add_parser('drop', help='Retrieve a Book its ID or isbn')
+    book_drop.add_argument('name', help='Post ID' )
+    book_drop.set_defaults(func=library.drop)
 
     args = parser.parse_args()
     sys.exit(args.func(args))
