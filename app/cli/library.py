@@ -9,6 +9,7 @@ from goodreads import client
 from goodreads.request import GoodreadsRequestException
 from os import environ
 from sqlalchemy import or_
+from tqdm import tqdm
 from urllib import parse, request
 from xml.etree import ElementTree as ET
 
@@ -139,7 +140,7 @@ def new(args):
     if args.list: isbns = sys.stdin.read().splitlines()
     elif args.single: isbns = [args.single]
 
-    for isbn in isbns: #TODO tqdm?
+    for isbn in tqdm(isbns): #TODO tqdm?
         if Book.query.filter_by(isbn=isbn).first() or Book.query.filter_by(isbn13=isbn).first():
             eprint(f'ISBN already in db: {isbn}')
         else:
@@ -183,7 +184,7 @@ def _get_closest_index(match, choices):
     return choices.index(get_close_matches(match, choices, n=1)[0])
 
 def get_ddc(isbn, book, verbose=False):
-    dcc = None
+    ddc = None
     try:
         # Get xml + namesapce + code
         xdoc = _get_xml(isbn)
@@ -211,7 +212,7 @@ def get_ddc(isbn, book, verbose=False):
             ddc = xdoc.find(f'.//{ns}recommendations/{ns}ddc/{ns}mostPopular').get('sfa')
         return ddc
     except Exception as e:
-        return dcc
+        return ddc
 
 def generate_book(isbn):
     status = ''
@@ -223,7 +224,7 @@ def generate_book(isbn):
         if not ddc:
             status += ' (2 No DDC)'
             ddc = 'XXX.XX'
-        cn = ddc +' '+ book.authors[0].name.split()[-1][:3].upper()
+        cn = ddc[:7] +' '+ book.authors[0].name.split()[-1][:3].upper()
 
         # Select image
         image_url = book.image_url
