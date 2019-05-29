@@ -3,7 +3,7 @@ import subprocess
 import sys
 import tempfile
 
-from . import CLIError
+from bs4 import BeautifulSoup
 from difflib import get_close_matches
 from goodreads import client
 from goodreads.request import GoodreadsRequestException
@@ -12,6 +12,7 @@ from sqlalchemy import or_
 from urllib import parse, request
 from xml.etree import ElementTree as ET
 
+from . import CLIError
 from .. import db, pretty_authors
 from ..models import BookAuthor, Book
 
@@ -223,7 +224,17 @@ def generate_book(isbn):
             status += ' (2 No DDC)'
             ddc = 'XXX.XX'
         cn = ddc +' '+ book.authors[0].name.split()[-1][:3].upper()
-        if 'nophoto' in book.image_url: status+= ' (1 No IMG)'
+
+        # Select image
+        image_url = book.image_url
+        if 'nophoto' in book.image_url:
+            with request.urlopen(book.link) as r:
+                soup = BeautifulSoup(r.read(), 'html.parser')
+                img = soup.find(id='coverImage')
+                if img:
+                    image_url = img.get('src')
+                else:
+                    status += ' (1 No IMG)'
 
         db_book = Book(
             title=book.title,
@@ -231,7 +242,7 @@ def generate_book(isbn):
             isbn=book.isbn,
             isbn13=book.isbn13,
             # TODO update image search
-            image_url=book.image_url,
+            image_url=image_url,
             publisher=book.publisher,
             description=book.description,
             rating=book.average_rating,
