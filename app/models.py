@@ -1,3 +1,5 @@
+import enum
+
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy_utc import UtcDateTime
 
@@ -55,6 +57,9 @@ class BookAuthor(db.Model):
     def find_one(cls, name):
         return cls.query.filter_by(name=name).first()
 
+class BookTypes(enum.Enum):
+    education = 0
+    literature = 1
 
 class Book(db.Model):
     __tablename__ = 'library'
@@ -67,6 +72,7 @@ class Book(db.Model):
     image_url   = db.Column(db.Text, nullable=True)
     publisher   = db.Column(db.String(120), nullable=True)
     description = db.Column(LONGTEXT, nullable=True)
+    type        = db.Column(db.Integer(), nullable=False, default=BookTypes.education.value)
     rating      = db.Column(db.Float, nullable=True)
     num_pages   = db.Column(db.Integer, nullable=True)
     edition     = db.Column(db.String(40), nullable=True)

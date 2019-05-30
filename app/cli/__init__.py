@@ -9,6 +9,7 @@ class CLIError(Exception):
 
 from .. import app, init_tables
 from . import wp_import, blog, library
+from ..models import BookTypes
 
 def c_dev(_args):
     app.run(host='::', port=os.environ['HTTP_PORT'])
@@ -81,7 +82,7 @@ def run():
     # Book/Library command
     p_books = subparsers.add_parser('books', help='Manage the library')
     p_books.set_defaults(func=library.list_simple)
-    books_sub = p_books.add_subparsers(dest='blog_command')
+    books_sub = p_books.add_subparsers(dest='books_command')
 
     # Book deletion command
     book_delete = books_sub.add_parser('delete', help='Delete a book post by its ID or ISBN')
@@ -95,6 +96,8 @@ def run():
     ex_group.add_argument('-l','--list', action='store_true', help='Add a multiple books: generated from ISBN, REQUIRES: interactive docker')
     ex_group.add_argument('-m','--manual', action='store_true', help='Add a single book manually')
     book_new.add_argument('-e', '--editor', nargs='?', help='Command to run as editor for manual editing only', default=DEFAULT_EDITOR)
+    book_new.add_argument('-t', '--type', help='Type of the new book', type=int, default=BookTypes.education.value)
+    book_new.add_argument('-v', '--verbose', action='store_true', help='Activate verbose logging')
     book_new.set_defaults(func=library.new, list=False)
 
     # Book retrieval command
@@ -106,10 +109,9 @@ def run():
     book_edit = books_sub.add_parser('edit', help='Edit an existing book')
     book_edit.add_argument('id', help='Book ID or ISBN(13)')
     book_edit.add_argument('-e', '--editor', nargs='?', help='Command to run as editor', default=DEFAULT_EDITOR)
+    book_edit.add_argument('-t', '--type', help='Change the type of the book', type=int)
     book_edit.set_defaults(func=library.edit)
 
-
-    # Book retrieval command
     book_drop = books_sub.add_parser('drop', help='Retrieve a Book its ID or isbn')
     book_drop.add_argument('name', help='Post ID' )
     book_drop.set_defaults(func=library.drop)

@@ -26,7 +26,7 @@ def table_keys(table):
     return [key for key in table.__dict__.keys() if key[0]!='_' and key!='id']
 
 def eprint(msg):
-    print(msg, file=sys.stderr)
+    tqdm.write(msg, file=sys.stderr)
 
 # author is of type: list of dict
 def find_or_make_authors(authors):
@@ -87,10 +87,11 @@ def get(args):
             f"\n\t{book.callnumber} :: {book.isbn13}//{book.isbn}"\
             f"\n\t{book.image_url}"\
             f"\n\t{book.publisher}"\
+            f"\n\ttype: {book.type}"\
             f"\n\tHas description: {book.description!=None}"
         )
     except Exception as e:
-        eprint(e)
+        print(f'> ERROR: {e} ')
 
 def edit(args):
     try:
@@ -103,7 +104,7 @@ def edit(args):
         eprint(' > Updated {books}')
 
     except Exception as e:
-        eprint(e)
+        print(f'> ERROR: {e} ')
 
 def edit_loop(book_dict, editor):
     with tempfile.NamedTemporaryFile(mode='r+', prefix='book-', suffix='.json') as tmp_book:
@@ -119,19 +120,19 @@ def edit_loop(book_dict, editor):
                 # Rewind to the start of the file to read the modified contents
                 tmp_book.seek(0,0)
                 # Read data into JSON
-                book = json.load(tmp_book)
+                book_dict = json.load(tmp_book)
 
                 # Confirm edit
-                print(json.dumps(book, indent=4))
+                print(json.dumps(book_dict, indent=4))
                 conf = input("Confirm book data (y) edit (e) or cancel: ")
 
             except Exception as e:
                 print(f'> ERROR: {e} ')
+                conf = input("Confirm book data (y) edit (e) or cancel: ")
 
         if not conf in 'yY':
-            return book_dict
-        return book
-
+            raise CLIError('editing canceled')
+        return book_dict
 
 def new(args):
     if args.manual: return manual_add(args)
@@ -141,31 +142,39 @@ def new(args):
     elif args.single: isbns = [args.single]
 
     for isbn in tqdm(isbns): #TODO tqdm?
-        if Book.query.filter_by(isbn=isbn).first() or Book.query.filter_by(isbn13=isbn).first():
-            eprint(f'ISBN already in db: {isbn}')
+        if Book.query.filter((Book.isbn==isbn) | (Book.isbn13==isbn)).first():
+            eprint(f'{isbn}\t> ISBN already in db')
         else:
-            msgs.append(generate_book(isbn))
+            msgs.append(generate_book(isbn, verbose=args.verbose))
     msgs = sorted(msgs, key=lambda m: m['status'])
     eprint("\n".join(map(lambda m: f"{m['isbn']}\t{m['status']}", msgs)))
 
 def remove_empty_vals(d):
     return {key:d[key] for key in d if not d[key] in ('',None)}
 
+from sqlalchemy import inspect
+
 def manual_add(args):
-    book_dict = {key:'' for key in table_keys(Book)}
-    book_dict['authors'] = [{'name': 'add more objects for more authors'}]
+    try:
+        book_dict = {}
+        for col in inspect(db.engine).get_columns('library'):
+            if col['name']!='id':
+                book_dict[col['name']] = '' if col['nullable'] else 'Required'
+        book_dict['authors'] = [{'name': 'add more objects for more authors'}]
 
-    book = edit_loop(book_dict)
+        book = edit_loop(book_dict, args.editor)
 
-    authors = find_or_make_authors(book['authors'])
-    book['authors'] = ''
+        authors = find_or_make_authors(book['authors'])
+        book['authors'] = ''
 
-    db_book = Book(**remove_empty_vals(book))
-    db_book.authors = authors
+        db_book = Book(**remove_empty_vals(book))
+        db_book.authors = authors
 
-    db.session.add(db_book)
-    db.session.commit()
-    print(f'> ADDED as #{db_book.id} ')
+        db.session.add(db_book)
+        db.session.commit()
+        print(f'> ADDED as #{db_book.id} ')
+    except Exception as e:
+        print(f'> ERROR: {e}')
 
 def _get_xml(paramValue, paramType='isbn', verbose=False):
     """Classify docs: http://classify.oclc.org/classify2/api_docs/index.html """
@@ -187,7 +196,7 @@ def get_ddc(isbn, book, verbose=False):
     ddc = None
     try:
         # Get xml + namesapce + code
-        xdoc = _get_xml(isbn)
+        xdoc = _get_xml(isbn, verbose=verbose)
         ns = xdoc.tag.split('}')[0]+'}'
         respCode = xdoc.find(f'.//{ns}response').get('code')
 
@@ -214,13 +223,13 @@ def get_ddc(isbn, book, verbose=False):
     except Exception as e:
         return ddc
 
-def generate_book(isbn):
+def generate_book(isbn, verbose=False):
     status = ''
     try:
         book = gc.book(isbn=isbn)
         authors = find_or_make_authors([a._author_dict for a in book.authors])
 
-        ddc = get_ddc(isbn, book)
+        ddc = get_ddc(isbn, book, verbose=verbose)
         if not ddc:
             status += ' (2 No DDC)'
             ddc = 'XXX.XX'
