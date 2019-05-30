@@ -76,3 +76,20 @@ class Book(db.Model):
     rating      = db.Column(db.Float, nullable=True)
     num_pages   = db.Column(db.Integer, nullable=True)
     edition     = db.Column(db.String(40), nullable=True)
+
+    @classmethod
+    def find_all(cls, search, key):
+        try:
+            import sys
+            print(key, file=sys.stderr)
+            books = []
+            if search == 'authors':
+                books = Book.query.join(search).\
+                    filter(BookAuthor.name.like(f'%{key}%')).all()
+            elif search:
+                books = Book.query.filter(getattr(Book,search).like(f'%{key}%')).all()
+            else:
+                books = Book.query.all()
+            return books
+        except Exception as e:
+            raise

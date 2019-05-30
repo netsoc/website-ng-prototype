@@ -15,19 +15,21 @@
 <div class="metadata">
     <h1>{{book.title}}</h1>
     <p>
-        {{book|pretty_authors}}<\br>
-        {{book.callnumber}}<\br>
+        {% for author in book.authors %}
+        <a href="{{ url_for('library', search='authors', key=author.name ) }}">{{author.name}}</a>,
+        {% endfor %} </br>
+        {{book.callnumber}}</br>
         {{book.rating}}
     </p>
-    <!-- {% for field in ['author', 'type', 'subject', 'category', 'publisher'] %}
-         <a href="{{ url_for('library', search=field, key=book[field] ) }}">{{book[field]}}</a><br/>
-         {% endfor %} -->
+    {% for field,val in [('type',book.type),('publisher',book.publisher)] %}
+    <a href="{{ url_for('library', search=field, key=val ) }}">{{val}}</a><br/>
+    {% endfor %}
 
     <div class="rating">
     </div>
     <div class="metadata-info">
         <p>
-            {{book.description}}
+            {{book.description|html2text}}
         </p>
     </div>
     <p>

@@ -64,6 +64,7 @@ def post_date(time):
 def html2text(text):
     return summarizer.handle(text)
 
+
 @app.route('/')
 def home():
     posts = BlogPost.query\
@@ -88,12 +89,8 @@ def about():
 @app.route('/library/')
 @app.route('/library/<search>/<key>')
 def library(search=None, key=None):
-    if search:
-        # TODO fix search
-        kwargs={search:key}
-        books = Book.query.filter_by(**kwargs)
-    else:
-        books = Book.query
+    print(search, key)
+    books = Book.find_all(search, key)
     return render_template("library.html", books=books, search=search, key=key)
     # return "Books are for nerds"
 
