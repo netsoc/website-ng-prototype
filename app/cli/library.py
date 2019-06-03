@@ -33,18 +33,15 @@ def table_keys(table):
 def eprint(msg):
     tqdm.write(msg, file=sys.stderr)
 
+def remove_empty_vals(d):
+    return {key:d[key] for key in d if not d[key] in ('',None)}
+
 # author is of type: list of dict
 def find_or_make_authors(authors):
     obj_authors = []
     for author in authors:
-        name = author.get('name', None)
-        print(name)
-        a = BookAuthor.find_one(name)
+        a = BookAuthor.find_one(author.get('name', None))
         if not a:
-            # try to get data from GoodreadsClient
-            # gr_a = gc.find_author(name)
-            # author = gr_a._author_dict if gr_a else author
-            print(author.get('name',None))
             a = BookAuthor(
                 name=author.get('name',None),
                 gr_link=author.get('link',None) or author.get('gr_link',None),
@@ -103,10 +100,20 @@ def edit(args):
     try:
         book = get_book(args.id)
         book_dict = {key:book.__dict__[key] for key in table_keys(book)}
+        if args.authors:
+            book_dict['authors'] = [{'name': a.name, 'gr_link': a.gr_link} for a in book.authors]
         updated_book = edit_loop(book_dict, args.editor)
+
+        # update authors separately
+        if args.authors:
+            book.authors = find_or_make_authors(updated_book['authors'])
+            updated_book['authors'] = ''
+            updated_book = remove_empty_vals(updated_book)
+
+        # bulk update other fields
         books = Book.query.filter(Book.id==book.id).update(updated_book)
         db.session.commit()
-        eprint(' > Updated {books}')
+        eprint(' > Updated #{book.id}')
 
     except Exception as e:
         print(f'> ERROR: {e} ')
@@ -153,9 +160,6 @@ def new(args):
             msgs.append(generate_book(isbn, args.type, verbose=args.verbose))
     msgs = sorted(msgs, key=lambda m: m['status'])
     eprint("\n".join(map(lambda m: f"{m['isbn']}\t{m['status']}", msgs)))
-
-def remove_empty_vals(d):
-    return {key:d[key] for key in d if not d[key] in ('',None)}
 
 from sqlalchemy import inspect
 

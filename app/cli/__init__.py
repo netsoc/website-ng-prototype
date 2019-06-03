@@ -84,6 +84,12 @@ def run():
     p_books.set_defaults(func=library.list_simple)
     books_sub = p_books.add_subparsers(dest='books_command')
 
+    # list books
+    book_list = books_sub.add_parser('list', help='List books')
+    book_list.add_argument('-n', '--limit', help='Max number of books to retrieve (0 for unlimited)', type=int, default=0)
+    book_list.add_argument('-r', '--reverse', help='Reverse the order of book (defaults to newest first)', action='store_true', default=False)
+    book_list.set_defaults(func=library.list)
+
     # Book deletion command
     book_delete = books_sub.add_parser('delete', help='Delete a book post by its ID or ISBN')
     book_delete.add_argument('id', help='Post ID', type=int)
@@ -105,11 +111,12 @@ def run():
     book_get.add_argument('id', help='Post ID')
     book_get.set_defaults(func=library.get)
 
-    # Blog posts editing command
+    # Book editing command
     book_edit = books_sub.add_parser('edit', help='Edit an existing book')
     book_edit.add_argument('id', help='Book ID or ISBN(13)')
     book_edit.add_argument('-e', '--editor', nargs='?', help='Command to run as editor', default=DEFAULT_EDITOR)
     book_edit.add_argument('-t', '--type', help='Change the type of the book', type=int)
+    book_edit.add_argument('-a', '--authors', action='store_true', help='Enables author editing')
     book_edit.set_defaults(func=library.edit)
 
     book_drop = books_sub.add_parser('drop', help='Retrieve a Book its ID or isbn')
