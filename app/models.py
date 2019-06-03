@@ -1,7 +1,6 @@
-import enum
-
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy_utc import UtcDateTime
+from sqlalchemy import or_
 
 from . import db
 
@@ -57,9 +56,10 @@ class BookAuthor(db.Model):
     def find_one(cls, name):
         return cls.query.filter_by(name=name).first()
 
-class BookTypes(enum.Enum):
-    education = 0
-    literature = 1
+class BookTypes():
+    types = ('Education', 'Literature')
+    i2s = {i:s for i,s in enumerate(types)}
+    s2i = {s:i for i,s in enumerate(types)}
 
 class Book(db.Model):
     __tablename__ = 'library'
@@ -72,24 +72,46 @@ class Book(db.Model):
     image_url   = db.Column(db.Text, nullable=True)
     publisher   = db.Column(db.String(120), nullable=True)
     description = db.Column(LONGTEXT, nullable=True)
-    type        = db.Column(db.Integer(), nullable=False, default=BookTypes.education.value)
+    type        = db.Column(db.Integer(), nullable=False, default=BookTypes.s2i.get('Education',None))
     rating      = db.Column(db.Float, nullable=True)
     num_pages   = db.Column(db.Integer, nullable=True)
     edition     = db.Column(db.String(40), nullable=True)
 
     @classmethod
-    def find_all(cls, search, key):
+    def find_all(cls, search=None, key=None, sort=None, desc=None):
+        """ Returns book matching search & sort - on fail returns empty list """
+        def like_filter(col):
+            return getattr(cls,col).like(f'%{key}%')
+
         try:
-            import sys
-            print(key, file=sys.stderr)
-            books = []
-            if search == 'authors':
-                books = Book.query.join(search).\
-                    filter(BookAuthor.name.like(f'%{key}%')).all()
+            books = cls.query
+
+            if search == 'all':
+                columns = cls.__table__.columns.keys()
+                filters = [like_filter(col) for col in columns if col!='id']
+                books = cls.query.filter(or_(*filters))
+
+            elif search == 'authors':
+                books = cls.query.join(search).\
+                    filter(BookAuthor.name.like(f'%{key}%'))
+
+            elif search == 'type':
+                itype = BookTypes.s2i.get(key, None)
+                if not itype:
+                    itype = [k for k in  BookTypes.s2i.keys() if key.lower() in k.lower()]
+                    itype = BookTypes.s2i.get(itype[0], None) if len(itype)>0 else -1
+                books = cls.query.filter(Book.type.like(f'%{itype}%'))
+
             elif search:
-                books = Book.query.filter(getattr(Book,search).like(f'%{key}%')).all()
-            else:
-                books = Book.query.all()
-            return books
+                books = cls.query.filter(like_filter(search))
+
+            order = None
+            if sort:
+                order = getattr(cls, sort)
+                if desc: order = order.desc()
+
+            return books.order_by(order).all()
+
         except Exception as e:
-            raise
+            #Do we log errors??
+            return []

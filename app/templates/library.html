@@ -1,36 +1,61 @@
-
 {% extends 'base.html' %}
 
+{% macro search_url(search, val) -%}
+<a href="{{ url_for('library', search=search, key=val ) }}">{{val}}</a>
+{%- endmacro %}
+
+{% block style  %}
+<link rel="stylesheet" type="text/css" href={{ url_for('static', filename='library.css')}} >
+{% endblock %}
+
 {% block header %}
-<h1>{% block title %} Netsoc Library {% endblock %}</h1>
+<h1>{% block title %}Netsoc Library{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
+<div class="col-12 border px-5 py-5 my-5">
+    <form action="/library" method="get">
 
-<!-- {insert search template??} -->
-<p>
-    Filler space for search section
-</p>
-
-<div>
-    *TO BE SIDE BAR*
-    <h2>{{search}}:{{key}}</h2>
+        <div class="row form-group">
+            <label class="col-2 col-form-label"><strong>Search</strong></label>
+            <div class="col-4">
+                <select class="form-control" name="search">
+                    {% set search_opt =
+                    ['title','all','authors','description','isbn','isbn13','publisher','type']%}
+                    {% for opt in search_opt %}
+                       <option {{'selected' if search==opt }}>{{opt}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col">
+                <input name="key" type="search" class="form-control" placeholder="Keyword" value="{{key if key}}">
+            </div>
+        </div>
+        <div class="row from-group">
+            <label class="col-2 col-form-label">Sort</label>
+            <div class="col">
+                <select class="form-control" name="sort"
+                        onchange='if(this.value != 0) { this.form.submit(); }'>
+                    {% set sort_opt =
+                    ['id','title','callnumber','isbn','isbn13','type']%}
+                    {% for opt in sort_opt %}
+                    <option {{'selected' if sort==opt }}>{{opt}}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-check">
+                    <input {{'checked' if desc }} onchange='this.form.submit();'
+                           class="form-check-input" type="checkbox" name="desc">
+                    <label class="form-check-label">
+                        Descending
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
-<table>
-{% for book in books %}
-    <tr>
-        <td>{{book.id}}</td>
-        <td>
-            <a href="{{ url_for('book', id=book.id ) }}">{{book.title}}</a>
-            <!-- <br/>
-                 {{book.author}}
-                 <br/>
-                 Call Number: {{book.callnum}} -->
-        </td>
-    </tr>
-
-{% endfor %}
-</table>
+<div class="col-12 jumbotron">
+    {% block librarystuff %}{% endblock %}
+</div>
 
 {% endblock %}

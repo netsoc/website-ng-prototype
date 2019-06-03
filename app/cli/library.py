@@ -1,4 +1,5 @@
 import json
+import requests
 import subprocess
 import sys
 import tempfile
@@ -8,19 +9,23 @@ from difflib import get_close_matches
 from goodreads import client
 from goodreads.request import GoodreadsRequestException
 from os import environ
+from requests.adapters import HTTPAdapter
 from sqlalchemy import or_
 from tqdm import tqdm
-from urllib import parse, request
+from urllib3.util.retry import Retry
 from xml.etree import ElementTree as ET
 
 from . import CLIError
 from .. import db, pretty_authors
-from ..models import BookAuthor, Book
+from ..models import BookAuthor, Book, BookTypes
 
 # Goodreads Client setup
 api_key = environ['GR_KEY']
 api_secret = environ['GR_SECRET']
 gc = client.GoodreadsClient(api_key, api_secret)
+
+reqs = requests.Session()
+reqs.mount = HTTPAdapter(max_retries=Retry(connect=3, backoff_factor=0.5))
 
 def table_keys(table):
     return [key for key in table.__dict__.keys() if key[0]!='_' and key!='id']
@@ -33,16 +38,16 @@ def find_or_make_authors(authors):
     obj_authors = []
     for author in authors:
         name = author.get('name', None)
+        print(name)
         a = BookAuthor.find_one(name)
         if not a:
             # try to get data from GoodreadsClient
-            gr_a = gc.find_author(name)
-            author = gr_a._author_dict if gr_a else author
+            # gr_a = gc.find_author(name)
+            # author = gr_a._author_dict if gr_a else author
+            print(author.get('name',None))
             a = BookAuthor(
                 name=author.get('name',None),
-                about=author.get('about',None),
                 gr_link=author.get('link',None) or author.get('gr_link',None),
-                image_url=author.get('image_url', None),
             )
             db.session.add(a)
         obj_authors.append(a)
@@ -90,6 +95,7 @@ def get(args):
             f"\n\ttype: {book.type}"\
             f"\n\tHas description: {book.description!=None}"
         )
+        print(book.publisher)
     except Exception as e:
         print(f'> ERROR: {e} ')
 
@@ -97,7 +103,6 @@ def edit(args):
     try:
         book = get_book(args.id)
         book_dict = {key:book.__dict__[key] for key in table_keys(book)}
-
         updated_book = edit_loop(book_dict, args.editor)
         books = Book.query.filter(Book.id==book.id).update(updated_book)
         db.session.commit()
@@ -145,7 +150,7 @@ def new(args):
         if Book.query.filter((Book.isbn==isbn) | (Book.isbn13==isbn)).first():
             eprint(f'{isbn}\t> ISBN already in db')
         else:
-            msgs.append(generate_book(isbn, verbose=args.verbose))
+            msgs.append(generate_book(isbn, args.type, verbose=args.verbose))
     msgs = sorted(msgs, key=lambda m: m['status'])
     eprint("\n".join(map(lambda m: f"{m['isbn']}\t{m['status']}", msgs)))
 
@@ -179,14 +184,11 @@ def manual_add(args):
 def _get_xml(paramValue, paramType='isbn', verbose=False):
     """Classify docs: http://classify.oclc.org/classify2/api_docs/index.html """
     base = 'http://classify.oclc.org/classify2/Classify?'
-    nextURL = base + parse.urlencode({paramType:paramValue.encode('utf-8'),'summary':True})
-    if verbose: print(nextURL)
 
-    urlobj = request.urlopen(nextURL)
-    response = urlobj.read()
-    urlobj.close()
-
-    xdoc = ET.fromstring(response)
+    params = {paramType:paramValue.encode('utf-8'),'summary':True}
+    r = reqs.get(base, params=params)
+    if verbose: print(r.url)
+    xdoc = ET.fromstring(r.text)
     return xdoc
 
 def _get_closest_index(match, choices):
@@ -223,28 +225,35 @@ def get_ddc(isbn, book, verbose=False):
     except Exception as e:
         return ddc
 
-def generate_book(isbn, verbose=False):
+def generate_book(isbn, b_type, verbose=False):
     status = ''
     try:
         book = gc.book(isbn=isbn)
+        if verbose:
+            print(json.dumps(book._book_dict['authors'], indent=4))
         authors = find_or_make_authors([a._author_dict for a in book.authors])
 
         ddc = get_ddc(isbn, book, verbose=verbose)
         if not ddc:
             status += ' (2 No DDC)'
             ddc = 'XXX.XX'
-        cn = ddc[:7] +' '+ book.authors[0].name.split()[-1][:3].upper()
+        base_cn = ddc[:7] +' '+ book.authors[0].name.split()[-1][:3].upper()
+        cn = base_cn
+        i = 1
+        while Book.query.filter_by(callnumber=cn).first():
+            cn = base_cn + f' ({i})'
+            i += 1
 
         # Select image
         image_url = book.image_url
         if 'nophoto' in book.image_url:
-            with request.urlopen(book.link) as r:
-                soup = BeautifulSoup(r.read(), 'html.parser')
-                img = soup.find(id='coverImage')
-                if img:
-                    image_url = img.get('src')
-                else:
-                    status += ' (1 No IMG)'
+            r = reqs.get(book.link)
+            soup = BeautifulSoup(r.text, 'html.parser')
+            img = soup.find(id='coverImage')
+            if img:
+                image_url = img.get('src')
+            else:
+                status += ' (1 No IMG)'
 
         db_book = Book(
             title=book.title,
@@ -258,6 +267,7 @@ def generate_book(isbn, verbose=False):
             rating=book.average_rating,
             num_pages=book.num_pages,
             authors=authors,
+            type=b_type,
         )
 
         db.session.add(db_book)

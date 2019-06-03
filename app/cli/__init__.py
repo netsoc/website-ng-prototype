@@ -96,7 +96,7 @@ def run():
     ex_group.add_argument('-l','--list', action='store_true', help='Add a multiple books: generated from ISBN, REQUIRES: interactive docker')
     ex_group.add_argument('-m','--manual', action='store_true', help='Add a single book manually')
     book_new.add_argument('-e', '--editor', nargs='?', help='Command to run as editor for manual editing only', default=DEFAULT_EDITOR)
-    book_new.add_argument('-t', '--type', help='Type of the new book', type=int, default=BookTypes.education.value)
+    book_new.add_argument('-t', '--type', help='Type of the new book', type=int, default=BookTypes.s2i.get('Education',None))
     book_new.add_argument('-v', '--verbose', action='store_true', help='Activate verbose logging')
     book_new.set_defaults(func=library.new, list=False)
 

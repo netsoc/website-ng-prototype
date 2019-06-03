@@ -1,40 +1,35 @@
-{% extends 'base.html' %}
+{% extends 'library.html' %}
 
-{% block header %}
-<h1>{% block title %} Netsoc Library - Book: {{book.title}} {% endblock %}</h1>
-{% endblock %}
+{% block librarystuff %}
 
-{% block content %}
-
-    <!-- {insert search template??} -->
-
-<div> <!-- IMG -->
-    <img alt="{{book.callnumber}}" src="{{book.image_url}}"/>
-</div>
-
-<div class="metadata">
-    <h1>{{book.title}}</h1>
-    <p>
-        {% for author in book.authors %}
-        <a href="{{ url_for('library', search='authors', key=author.name ) }}">{{author.name}}</a>,
-        {% endfor %} </br>
-        {{book.callnumber}}</br>
-        {{book.rating}}
-    </p>
-    {% for field,val in [('type',book.type),('publisher',book.publisher)] %}
-    <a href="{{ url_for('library', search=field, key=val ) }}">{{val}}</a><br/>
-    {% endfor %}
-
-    <div class="rating">
+<div class="row">
+    <div class="col-md-3"> <!-- IMG -->
+        <img class="cover-img" alt="{{book.callnumber}}" src="{{book.image_url}}"/>
     </div>
-    <div class="metadata-info">
+
+    <div class="metadata col-md-8">
+        <h2>{{book.title}}</h2>
+        <p> by
+            {% for author in book.authors %}
+            {{search_url("authors",author.name)}}{{ "," if not loop.last }}
+            {% endfor %} <br/><br/>
+            Goodreads Rating: {{book.rating}}
+        </p>
+        <div class="metadata-info">
+            <hr/>
+            <p>
+                {% if book.description %}
+                {{book.description|html2text}}
+                <hr/>
+                {% endif %}
+            </p>
+        </div>
         <p>
-            {{book.description|html2text}}
+            Located on shelf {{ search_url('type',book.type|parse_type)}} :: {{book.callnumber}}<br/>
+            Publisher :: {{ search_url("publisher", book.publisher)}} <br/>
+            ISBNs :: {{book.isbn13}} // {{book.isbn}}
         </p>
     </div>
-    <p>
-        {{book.publisher}} :: {{book.isbn13}}
-    </p>
 </div>
 
 {% endblock %}

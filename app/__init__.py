@@ -1,6 +1,6 @@
 from os import environ
 
-from flask import Flask, abort, render_template
+from flask import Flask, abort, render_template, request
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -47,13 +47,16 @@ app.config.update({
 
 db = SQLAlchemy(app)
 from . import models
-from .models import BlogPost, Book
+from .models import BlogPost, Book, BookTypes
 
 @app.before_first_request
 def init_tables():
     # Create tables defined above if they don't exist otherwise load them in
     db.create_all()
 
+@app.template_filter()
+def parse_type(book_type):
+    return BookTypes.i2s[book_type]
 @app.template_filter()
 def pretty_authors(post):
     return ', '.join(map(lambda u: u.name, post.authors))
@@ -87,16 +90,13 @@ def about():
 
 # Needs to be able to handle the current library system
 @app.route('/library/')
-@app.route('/library/<search>/<key>')
-def library(search=None, key=None):
-    print(search, key)
-    books = Book.find_all(search, key)
-    return render_template("library.html", books=books, search=search, key=key)
+def library():
+    books = Book.find_all(**request.args)
+    return render_template("search.html", books=books, **request.args)
     # return "Books are for nerds"
 
 @app.route('/library/book/<id>')
 def book(id):
-    # retrive book from db
     book = Book.query.filter_by(id=id).first_or_404()
     return render_template('book.html', book=book)
 
