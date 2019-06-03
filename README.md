@@ -38,11 +38,21 @@ Posts should be easy to display using SQLAlchemy and will be displayed on the ho
 ### New blog post schema
 See [`app/models.py`](app/models.py).
 
+## Library
+
+### Book schema
+See [`app/models.py`](app/models.py).
+
+### Adding Books
+The `new` command allows for 3 options: single, list and manual add.
+The first 2 options take an ISBN and auto generate the data from the Goodreads api, and get the ddc from [http://classify.oclc.org/classify2/](http://classify.oclc.org/classify2/).
+
 ## CLI
 The website is effectively read-only. To make changes (e.g. CRUD blog posts), use the CLI:
 ```bash
 docker exec <app container name> website <command>
 ```
+for edit commands run `docker exec -ti <rest of command>`
 
 ### Importing current posts from WordPress for development
 To get some test posts, you can import the current website's posts to your local database.

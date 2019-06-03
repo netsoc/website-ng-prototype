@@ -1,0 +1,29 @@
+td {
+    padding: 0.5em 1.5em;
+}
+
+.small-img {
+    width: 5em;
+    display: inline-block;
+}
+
+.cover-img {
+	  width: 100%;
+    padding: 1em;
+}
+
+.metadata {
+}
+
+.small-title {
+    font-weight: bold;
+}
+
+.search {
+    padding: 3em;
+}
+
+.list-group-item {
+    width: 100%;
+    padding: 1em;
+}

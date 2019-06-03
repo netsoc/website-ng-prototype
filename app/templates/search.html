@@ -1,0 +1,29 @@
+{% extends 'library.html' %}
+
+{% block librarystuff %}
+<h3 class="mx-auto col-12">{{books|length}} Books matched:</h3>
+
+<table class="col-12">
+    {% for book in books %}
+    <tr class="list-group-item">
+        <td>{{loop.index}}.</td>
+        <td><img class="small-img" alt="no img" src="{{book.image_url}}"/></td>
+        <td>
+            <p>
+                <a class="small-title" href="{{ url_for('book', id=book.id ) }}">{{book.title}}</a>
+                </br>
+                by
+                {% for author in book.authors %}
+                {{ search_url("authors",author.name)}}{{ "," if not loop.last }}
+                {% endfor %}
+                {{book.author}}
+                <br/>
+                Call Number: {{book.callnumber}}
+            </p>
+        </td>
+    </tr>
+
+    {% endfor %}
+</table>
+
+{% endblock %}
