@@ -81,7 +81,7 @@ def run():
 
     # Book/Library command
     p_books = subparsers.add_parser('books', help='Manage the library')
-    p_books.set_defaults(func=library.list_simple)
+    p_books.set_defaults(func=library.simple_list)
     books_sub = p_books.add_subparsers(dest='books_command')
 
     # list books
@@ -97,13 +97,13 @@ def run():
 
     # Book creation command
     book_new = books_sub.add_parser('new', help='Add a new book to the library')
-    ex_group = book_new.add_mutually_exclusive_group()
-    ex_group.add_argument('-s','--single', help='Add a sinlge book: generated from ISBN')
+    ex_group = book_new.add_mutually_exclusive_group(required=True)
+    ex_group.add_argument('-s','--single', help='Add a single book: generated from ISBN')
     ex_group.add_argument('-l','--list', action='store_true', help='Add a multiple books: generated from ISBN, REQUIRES: interactive docker')
     ex_group.add_argument('-m','--manual', action='store_true', help='Add a single book manually')
     book_new.add_argument('-e', '--editor', nargs='?', help='Command to run as editor for manual editing only', default=DEFAULT_EDITOR)
-    book_new.add_argument('-t', '--type', help='Type of the new book', type=int, default=BookTypes.s2i.get('Education',None))
-    book_new.add_argument('-v', '--verbose', action='store_true', help='Activate verbose logging')
+    book_new.add_argument('-t', '--type', help='type of the new book', type=int, default=booktypes.s2i.get('education',none))
+    book_new.add_argument('-v', '--verbose', action='store_true', help='activate verbose logging')
     book_new.set_defaults(func=library.new, list=False)
 
     # Book retrieval command
@@ -118,10 +118,6 @@ def run():
     book_edit.add_argument('-t', '--type', help='Change the type of the book', type=int)
     book_edit.add_argument('-a', '--authors', action='store_true', help='Enables author editing')
     book_edit.set_defaults(func=library.edit)
-
-    book_drop = books_sub.add_parser('drop', help='Retrieve a Book its ID or isbn')
-    book_drop.add_argument('name', help='Post ID' )
-    book_drop.set_defaults(func=library.drop)
 
     args = parser.parse_args()
     sys.exit(args.func(args))

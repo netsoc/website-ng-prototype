@@ -88,12 +88,10 @@ def post(id):
 def about():
     return render_template("about-us.html")
 
-# Needs to be able to handle the current library system
 @app.route('/library/')
 def library():
     books = Book.find_all(**request.args)
     return render_template("search.html", books=books, **request.args)
-    # return "Books are for nerds"
 
 @app.route('/library/book/<id>')
 def book(id):

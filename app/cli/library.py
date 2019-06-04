@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 import subprocess
 import sys
@@ -40,14 +41,14 @@ def remove_empty_vals(d):
 def find_or_make_authors(authors):
     obj_authors = []
     for author in authors:
-        a = BookAuthor.find_one(author.get('name', None))
-        if not a:
-            a = BookAuthor(
+        db_author = BookAuthor.find_one(author.get('name', None))
+        if not db_author:
+            db_author = BookAuthor(
                 name=author.get('name',None),
                 gr_link=author.get('link',None) or author.get('gr_link',None),
             )
-            db.session.add(a)
-        obj_authors.append(a)
+            db.session.add(db_author)
+        obj_authors.append(db_author)
     db.session.commit()
     return obj_authors
 
@@ -70,7 +71,7 @@ def list(args):
     for book in query:
         print(f'#{book.id}: "{book.title}"')# by {pretty_authors(book)} isbn: {book.isbn}')
 
-def list_simple(args):
+def simple_list(args):
     args.limit = 10
     args.reverse = False
     list(args)
@@ -125,12 +126,13 @@ def edit_loop(book_dict, editor):
         tmp_book.flush()
         conf = 'e'
 
+        # TODO change conf
         while(conf in 'Ee'):
             try:
                 # Open the editor to edit the book
                 subprocess.call([editor, tmp_book.name])
                 # Rewind to the start of the file to read the modified contents
-                tmp_book.seek(0,0)
+                tmp_book.seek(0, os.SEEK_SET)
                 # Read data into JSON
                 book_dict = json.load(tmp_book)
 
@@ -153,7 +155,7 @@ def new(args):
     if args.list: isbns = sys.stdin.read().splitlines()
     elif args.single: isbns = [args.single]
 
-    for isbn in tqdm(isbns): #TODO tqdm?
+    for isbn in tqdm(isbns):
         if Book.query.filter((Book.isbn==isbn) | (Book.isbn13==isbn)).first():
             eprint(f'{isbn}\t> ISBN already in db')
         else:
@@ -290,6 +292,3 @@ def generate_book(isbn, b_type, verbose=False):
         status = f'> FAILURE: {e}'
     finally:
         return {'isbn':isbn, 'status': status}
-
-def drop(args):
-    db.metadata.drop_all(db.engine)

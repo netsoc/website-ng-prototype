@@ -15,6 +15,8 @@ MYSQL_DATABASE=netsocwww
 MYSQL_USER=netsoc 
 MYSQL_PASSWORD=website
 TZ=Europe/Dublin
+GR_KEY=<your goodreads key *only required for generating books>
+GR_SECRET=<your goodreads secret>
 ```
 3. Run `docker-compose up`
 4. Server should be accessible from http://localhost:8080, hot reload should also work
@@ -47,12 +49,18 @@ See [`app/models.py`](app/models.py).
 The `new` command allows for 3 options: single, list and manual add.
 The first 2 options take an ISBN and auto generate the data from the Goodreads api, and get the ddc from [http://classify.oclc.org/classify2/](http://classify.oclc.org/classify2/).
 
+### Goodreads Api
+For "details" and keys see [Goodreads api](https://www.goodreads.com/api).
+
+The python wrapper is technically outdated ... see [gooreads pypi](https://pypi.org/project/Goodreads/)
+
+
 ## CLI
 The website is effectively read-only. To make changes (e.g. CRUD blog posts), use the CLI:
 ```bash
 docker exec <app container name> website <command>
 ```
-for edit commands run `docker exec -ti <rest of command>`
+for edit commands run `docker exec -ti <app container name> website books edit 9780201619188 -e <editor of choice>`
 
 ### Importing current posts from WordPress for development
 To get some test posts, you can import the current website's posts to your local database.
@@ -65,3 +73,14 @@ First, you'll need to dump the DB from `snark-www`:
 6. Create a database for the old data using the `mysql` prompt (and your password)
 7. Import the data by running `mysql -p<password> <your database name> < /wordpress.sql`
 8. Convert the data to the new format (readable by the app) using the CLI - exit from the DB shell and run `docker exec -ti New-Netsoc-Website_app_1 website import db <your database name> root`
+
+### Managing the Library
+Adding books (example list) 
+```bash
+docker exec -ti <app container name> website books new -l
+isbn-1
+isbn-2
+...
+<Ctrl-d>
+```
+
