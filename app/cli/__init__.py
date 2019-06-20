@@ -20,10 +20,13 @@ def run():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers(required=True, dest='command')
 
+    # Global options
+    parser.add_argument('-e', '--editor', help='Command to run as editor', default=DEFAULT_EDITOR)
+    parser.add_argument('-v', '--verbose', action='store_true', help='activate verbose logging')
+
     # Command to run the Flask development server
     p_app = subparsers.add_parser('app', help='Run the development server')
     p_app.set_defaults(func=c_dev)
-
 
     # Import command
     p_import = subparsers.add_parser('import', help='Import blog posts from WordPress')
@@ -32,7 +35,6 @@ def run():
     p_import.add_argument('database', help='WordPress database name')
     p_import.add_argument('user', help='WordPress database user')
     p_import.set_defaults(func=wp_import.run)
-
 
     # Blog posts command
     p_blog = subparsers.add_parser('posts', help='Manage blog posts')
@@ -61,7 +63,6 @@ def run():
     # Blog posts creation command
     blog_new = blog_sub.add_parser('new', help='Create a new blog post')
     blog_new.add_argument('-a', '--authors', help='Post author(s) - pass for each author', action='append', required=True)
-    blog_new.add_argument('-e', '--editor', help='Command to run as editor', default=DEFAULT_EDITOR)
     blog_new.add_argument('--html', help='Write HTML directly instead of Markdown', action='store_true', default=False)
     blog_new.add_argument('title', help='Post title')
     blog_new.set_defaults(func=blog.new)
@@ -70,7 +71,7 @@ def run():
     blog_edit = blog_sub.add_parser('edit', help='Edit an existing blog post')
     blog_edit.add_argument('-t', '--title', help='Updated post title')
     blog_edit.add_argument('-a', '--authors', help='Updated post author(s) - replaces existing authors if passed', action='append')
-    blog_edit.add_argument('-e', '--editor', help='Command to run as editor', default=DEFAULT_EDITOR)
+    # blog_edit.add_argument('-e', '--editor', help='Command to run as editor', default=DEFAULT_EDITOR)
     ex_group = blog_edit.add_mutually_exclusive_group()
     ex_group.add_argument('--no-content', help='Only edit attributes (e.g. title, authors)', action='store_true', default=False)
     ex_group.add_argument('--html', help='Force editing of post HTML (defaults to Markdown if available), '+
@@ -97,14 +98,16 @@ def run():
 
     # Book creation command
     book_new = books_sub.add_parser('new', help='Add a new book to the library')
-    ex_group = book_new.add_mutually_exclusive_group(required=True)
-    ex_group.add_argument('-s','--single', help='Add a single book: generated from ISBN')
-    ex_group.add_argument('-l','--list', action='store_true', help='Add a multiple books: generated from ISBN, REQUIRES: interactive docker')
-    ex_group.add_argument('-m','--manual', action='store_true', help='Add a single book manually')
-    book_new.add_argument('-e', '--editor', nargs='?', help='Command to run as editor for manual editing only', default=DEFAULT_EDITOR)
-    book_new.add_argument('-t', '--type', help='type of the new book', type=int, default=booktypes.s2i.get('education',none))
-    book_new.add_argument('-v', '--verbose', action='store_true', help='activate verbose logging')
-    book_new.set_defaults(func=library.new, list=False)
+    book_new.add_argument('-lit', '--literature', action='store_true', help='Set book type to literature')
+    book_new_sub = book_new.add_subparsers(required=True, dest='book_add_command')
+    single_book = book_new_sub.add_parser('single')
+    single_book.add_argument('isbn', help='ISBN(13) of the book to add')
+    single_book.set_defaults(func=library.new, list=False)
+    multiple_books = book_new_sub.add_parser('list')
+    multiple_books.set_defaults(func=library.new, list=True)
+    manual_books = book_new_sub.add_parser('manual')
+    manual_books.set_defaults(func=library.manual_add)
+    book_new.set_defaults(func=library.new, list=True)
 
     # Book retrieval command
     book_get = books_sub.add_parser('get', help='Retrieve a Book its ID or isbn')

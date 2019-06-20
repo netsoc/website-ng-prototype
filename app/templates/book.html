@@ -25,7 +25,7 @@
             </p>
         </div>
         <p>
-            Located on shelf {{ search_url('type',book.type|parse_type)}} :: {{book.callnumber}}<br/>
+            Located on shelf {{ search_url('type',book.type.value)}} :: {{book.callnumber}}<br/>
             Publisher :: {{ search_url("publisher", book.publisher)}} <br/>
             ISBNs :: {{book.isbn13}} // {{book.isbn}}
         </p>

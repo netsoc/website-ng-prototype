@@ -15,6 +15,7 @@ from sqlalchemy import or_
 from tqdm import tqdm
 from urllib3.util.retry import Retry
 from xml.etree import ElementTree as ET
+from xml.parsers.expat import ExpatError
 
 from . import CLIError
 from .. import db, pretty_authors
@@ -26,7 +27,7 @@ api_secret = environ['GR_SECRET']
 gc = client.GoodreadsClient(api_key, api_secret)
 
 reqs = requests.Session()
-reqs.mount = HTTPAdapter(max_retries=Retry(connect=3, backoff_factor=0.5))
+reqs.mount = HTTPAdapter(max_retries=Retry(connect=5, backoff_factor=2))
 
 def table_keys(table):
     return [key for key in table.__dict__.keys() if key[0]!='_' and key!='id']
@@ -149,17 +150,16 @@ def edit_loop(book_dict, editor):
         return book_dict
 
 def new(args):
-    if args.manual: return manual_add(args)
-
     msgs, isbns = [], []
     if args.list: isbns = sys.stdin.read().splitlines()
-    elif args.single: isbns = [args.single]
+    else: isbns = [args.isbn]
 
     for isbn in tqdm(isbns):
         if Book.query.filter((Book.isbn==isbn) | (Book.isbn13==isbn)).first():
             eprint(f'{isbn}\t> ISBN already in db')
         else:
-            msgs.append(generate_book(isbn, args.type, verbose=args.verbose))
+            msgs.append(generate_book(isbn, args.literature, verbose=args.verbose))
+
     msgs = sorted(msgs, key=lambda m: m['status'])
     eprint("\n".join(map(lambda m: f"{m['isbn']}\t{m['status']}", msgs)))
 
@@ -231,7 +231,7 @@ def get_ddc(isbn, book, verbose=False):
     except Exception as e:
         return ddc
 
-def generate_book(isbn, b_type, verbose=False):
+def generate_book(isbn, lit, verbose=False):
     status = ''
     try:
         book = gc.book(isbn=isbn)
@@ -241,7 +241,7 @@ def generate_book(isbn, b_type, verbose=False):
 
         ddc = get_ddc(isbn, book, verbose=verbose)
         if not ddc:
-            status += ' (2 No DDC)'
+            status += '> ATTENTION: No DDC '
             ddc = 'XXX.XX'
         base_cn = ddc[:7] +' '+ book.authors[0].name.split()[-1][:3].upper()
         cn = base_cn
@@ -259,7 +259,7 @@ def generate_book(isbn, b_type, verbose=False):
             if img:
                 image_url = img.get('src')
             else:
-                status += ' (1 No IMG)'
+                status += '> ATTENTION: No IMG'
 
         db_book = Book(
             title=book.title,
@@ -273,22 +273,27 @@ def generate_book(isbn, b_type, verbose=False):
             rating=book.average_rating,
             num_pages=book.num_pages,
             authors=authors,
-            type=b_type,
         )
+
+        if lit:
+            db_book.type = BookTypes.literature
 
         db.session.add(db_book)
 
         try:
             db.session.commit()
-            status = f'> ADDED as #{db_book.id} ' + status
+            status += f'> ADDED as #{db_book.id:02} '
         except Exception as e:
             db.session.rollback()
             status = f'> COMMIT FAILURE: {e} '
 
     # GoodreadsRequestException
+    except GoodreadsRequestException as e:
+        e = ' '.join(e.__str__())
+        status = f'> FAILURE: <GoodreadsRequestException> {e}'
+    except ExpatError as e:
+        status = f'> FAILURE: {type(e)} {e} [check Goodread keys in environ file]'
     except Exception as e:
-        if isinstance(e, GoodreadsRequestException):
-            e = ' '.join(e.__str__())
-        status = f'> FAILURE: {e}'
+        status = f'> FAILURE: {type(e)} {e}'
     finally:
         return {'isbn':isbn, 'status': status}

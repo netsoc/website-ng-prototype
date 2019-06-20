@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% macro search_url(search, val) -%}
-<a href="{{ url_for('library', search=search, key=val ) }}">{{val}}</a>
+<a href="{{ url_for('library', search=search, key=val ) }}" title="search for {{val}}">{{val}}</a>
 {%- endmacro %}
 
 {% block style  %}
