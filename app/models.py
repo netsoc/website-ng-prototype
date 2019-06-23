@@ -78,7 +78,7 @@ class Book(db.Model):
     edition     = db.Column(db.String(40), nullable=True)
 
     @classmethod
-    def find_all(cls, search=None, key=None, sort=None, desc=None):
+    def find_all(cls, search=None, key=None, sort=None, desc=None, items=20, page=None):
         """ Returns book matching search & sort - on fail returns empty list """
         def like_filter(col):
             return getattr(cls,col).like(f'%{key}%')
@@ -103,7 +103,7 @@ class Book(db.Model):
                 order = getattr(cls, sort)
                 if desc: order = order.desc()
 
-            return books.order_by(order).all()
+            return books.order_by(order).paginate(per_page=(int(items) or None))
 
         except Exception as e:
             #Do we log errors??

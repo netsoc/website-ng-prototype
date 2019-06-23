@@ -1,12 +1,14 @@
 {% extends 'library.html' %}
 
 {% block librarystuff %}
-<h3 class="mx-auto col-12">{{books|length}} Books matched:</h3>
+<h3 class="mx-auto col-12">{{books.total}} Books matched:</h3>
+<form action="/library" method="get">
+</form>
 
 <table class="col-12">
-    {% for book in books %}
+    {% for book in books.items %}
     <tr class="list-group-item">
-        <td>{{loop.index}}.</td>
+        <td>{{loop.index + (books.page-1)*books.per_page}}.</td>
         <td><img class="small-img" alt="no img" src="{{book.image_url}}"/></td>
         <td>
             <p>
@@ -25,5 +27,5 @@
 
     {% endfor %}
 </table>
-
+{{ render_pagination(books, 'library') }}
 {% endblock %}

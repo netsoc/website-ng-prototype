@@ -51,6 +51,22 @@
                 </div>
             </div>
         </div>
+        {% if books %}
+            <div class="row from-group">
+                <label class="col-2 col-form-lable" >Pagination</label>
+                <div class="col">
+                    {% set pagination_opts = [20, 50, 100] %}
+                    {% for opt in pagination_opts %}
+                    <label class="radio-inline">
+                        <input type="radio" name="items" onchange='this.form.submit();'
+                               value="{{'None' if opt=='all' else opt }}"
+                               {{'checked' if opt|string()==items|string() or not items and loop.index==1 }}>
+                        {{opt}}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
     </form>
 </div>
 
