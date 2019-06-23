@@ -1,5 +1,6 @@
 import json
 import os
+import logging
 import requests
 import subprocess
 import sys
@@ -128,7 +129,7 @@ def edit_loop(book_dict, editor):
         conf = 'e'
 
         # TODO change conf
-        while(conf in 'Ee'):
+        while(not conf or conf not in 'YycC'):
             try:
                 # Open the editor to edit the book
                 subprocess.call([editor, tmp_book.name])
@@ -139,14 +140,15 @@ def edit_loop(book_dict, editor):
 
                 # Confirm edit
                 print(json.dumps(book_dict, indent=4))
-                conf = input("Confirm book data (y) edit (e) or cancel: ")
 
             except Exception as e:
                 print(f'> ERROR: {e} ')
-                conf = input("Confirm book data (y) edit (e) or cancel: ")
+
+            finally:
+                conf = input("Confirm book data (y) cancel (c) otherwise continue editing: ")
 
         if not conf in 'yY':
-            raise CLIError('editing canceled')
+            raise CLIError('editing cancelled')
         return book_dict
 
 def new(args):
@@ -229,6 +231,7 @@ def get_ddc(isbn, book, verbose=False):
             ddc = xdoc.find(f'.//{ns}recommendations/{ns}ddc/{ns}mostPopular').get('sfa')
         return ddc
     except Exception as e:
+        logging.error(e)
         return ddc
 
 def generate_book(isbn, lit, verbose=False):

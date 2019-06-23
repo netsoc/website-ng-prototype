@@ -27,5 +27,5 @@
 
     {% endfor %}
 </table>
-{{ render_pagination(books, 'library') }}
+{{ render_pagination(books, 'library') if books }}
 {% endblock %}

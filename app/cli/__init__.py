@@ -93,7 +93,7 @@ def run():
 
     # Book deletion command
     book_delete = books_sub.add_parser('delete', help='Delete a book post by its ID or ISBN')
-    book_delete.add_argument('id', help='Post ID', type=int)
+    book_delete.add_argument('id', help='Book ID or ISBN', type=int)
     book_delete.set_defaults(func=library.delete)
 
     # Book creation command

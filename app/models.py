@@ -1,4 +1,5 @@
 import enum
+import logging
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy_utc import UtcDateTime
 from sqlalchemy import or_
@@ -106,5 +107,5 @@ class Book(db.Model):
             return books.order_by(order).paginate(per_page=(int(items) or None))
 
         except Exception as e:
-            #Do we log errors??
-            return []
+            logging.error(e)
+            return cls.query.filter(False).paginate()

@@ -60,7 +60,7 @@ The website is effectively read-only. To make changes (e.g. CRUD blog posts), us
 ```bash
 docker exec <app container name> website <command>
 ```
-for edit commands run `docker exec -ti <app container name> website books edit 9780201619188 -e <editor of choice>`
+for edit commands run `docker exec -ti <app container name> website -e <editor of choice> books edit 9780201619188`
 
 ### Importing current posts from WordPress for development
 To get some test posts, you can import the current website's posts to your local database.
