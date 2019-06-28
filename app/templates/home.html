@@ -17,18 +17,5 @@
 </div>
 {% endfor %}
 </div>
-<div id='links'>
-{%- for page in posts.iter_pages() %}
-	{% if page %}
-		{% if page != posts.page %}
-			<a href="{{ url_for('home', page=page) }}">{{ page }}</a>
-		{% else %}
-			<strong>{{ page }}</strong>
-		{% endif %}
-	{% else %}
-		<span>…</span>
-	{% endif %}
-{%- endfor %}
-</div>
-</div>
+{{ render_pagination(posts, 'home') }}
 {% endblock %}

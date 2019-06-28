@@ -1,0 +1,35 @@
+{% extends 'library.html' %}
+
+{% block librarystuff %}
+
+<div class="row">
+    <div class="col-md-3"> <!-- IMG -->
+        <img class="cover-img" alt="{{book.callnumber}}" src="{{book.image_url}}"/>
+    </div>
+
+    <div class="metadata col-md-8">
+        <h2>{{book.title}}</h2>
+        <p> by
+            {% for author in book.authors %}
+            {{search_url("authors",author.name)}}{{ "," if not loop.last }}
+            {% endfor %} <br/><br/>
+            Goodreads Rating: {{book.rating}}
+        </p>
+        <div class="metadata-info">
+            <hr/>
+            <p>
+                {% if book.description %}
+                {{book.description|html2text}}
+                <hr/>
+                {% endif %}
+            </p>
+        </div>
+        <p>
+            Located on shelf {{ search_url('type',book.type.value)}} :: {{book.callnumber}}<br/>
+            Publisher :: {{ search_url("publisher", book.publisher)}} <br/>
+            ISBNs :: {{book.isbn13}} // {{book.isbn}}
+        </p>
+    </div>
+</div>
+
+{% endblock %}

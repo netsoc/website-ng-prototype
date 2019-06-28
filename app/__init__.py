@@ -1,11 +1,12 @@
 from os import environ
 
-import tzlocal
-import html2text
-from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import Flask, render_template, abort
-from sqlalchemy.engine.url import URL
+from flask import Flask, abort, render_template, request
 from sqlalchemy import create_engine
+from sqlalchemy.engine.url import URL
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+import html2text
+import tzlocal
 from flask_sqlalchemy import SQLAlchemy
 
 timezone = tzlocal.get_localzone()
@@ -16,6 +17,7 @@ summarizer.ignore_anchors = True
 summarizer.images_to_alt = True
 summarizer.ignore_emphasis = True
 summarizer.ignore_tables = True
+
 
 app = Flask(__name__)
 # Make sure request.remote_addr represents the real client IP
@@ -45,13 +47,16 @@ app.config.update({
 
 db = SQLAlchemy(app)
 from . import models
-from .models import BlogPost
+from .models import BlogPost, Book, BookTypes
 
 @app.before_first_request
 def init_tables():
     # Create tables defined above if they don't exist otherwise load them in
     db.create_all()
 
+@app.template_filter()
+def parse_type(book_type):
+    return BookTypes.i2s[book_type]
 @app.template_filter()
 def pretty_authors(post):
     return ', '.join(map(lambda u: u.name, post.authors))
@@ -61,6 +66,7 @@ def post_date(time):
 @app.template_filter()
 def html2text(text):
     return summarizer.handle(text)
+
 
 @app.route('/')
 def home():
@@ -82,10 +88,15 @@ def post(id):
 def about():
     return render_template("about-us.html")
 
-# Needs to be able to handle the current library system
-@app.route('/library')
+@app.route('/library/')
 def library():
-    return "Books are for nerds"
+    books = Book.find_all(**request.args)
+    return render_template("search.html", books=books, **request.args)
+
+@app.route('/library/book/<id>')
+def book(id):
+    book = Book.query.filter_by(id=id).first_or_404()
+    return render_template('book.html', book=book)
 
 # This one will be a bit awkward as need way to write to openldap
 # from snark-www
@@ -127,3 +138,4 @@ def slides():
 @app.route("/login")
 def login():
     return "Must be a member"
+ 
