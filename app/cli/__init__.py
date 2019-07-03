@@ -2,7 +2,7 @@ import sys
 import os
 import argparse
 
-DEFAULT_EDITOR = os.environ.get('EDITOR', 'nano')
+DEFAULT_EDITOR = os.environ.get('VISUAL', os.environ.get('EDITOR', 'nano'))
 
 class CLIError(Exception):
     pass
