@@ -43,7 +43,7 @@ def run():
 
     # Blog posts list command
     blog_list = blog_sub.add_parser('list', help='List blog posts')
-    blog_list.add_argument('-n', '--limit', help='Max number of posts to retrieve (0 for unlimited)', type=int, default=0)
+    blog_list.add_argument('-n', '--limit', help='Maximum number of posts to retrieve (0 for unlimited)', type=int, default=0)
     blog_list.add_argument('-r', '--reverse', help='Reverse the order of blog posts (defaults to newest first)', action='store_true', default=False)
     blog_list.set_defaults(func=blog.list)
 
@@ -87,7 +87,7 @@ def run():
 
     # list books
     book_list = books_sub.add_parser('list', help='List books')
-    book_list.add_argument('-n', '--limit', help='Max number of books to retrieve (0 for unlimited)', type=int, default=0)
+    book_list.add_argument('-n', '--limit', help='Maximum number of books to retrieve (0 for unlimited)', type=int, default=0)
     book_list.add_argument('-r', '--reverse', help='Reverse the order of book (defaults to newest first)', action='store_true', default=False)
     book_list.set_defaults(func=library.list)
 
